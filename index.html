@@ -15,6 +15,26 @@
   </head>
   <body class="bg-[#F5F8FB] text-[#1E252D] antialiased font-['Inter',sans-serif]">
     <div id="root"></div>
+    <noscript>
+      <div style="max-width:680px;margin:32px auto;padding:20px;background:#FFFFFF;border:1px solid #D6E1EB;font-family:Arial,sans-serif;color:#1E252D;">
+        <h1 style="margin:0 0 8px 0;font-size:20px;">I+S Data Solutions — Diagnóstico de Madurez de Datos &amp; BI</h1>
+        <p style="margin:0 0 12px 0;font-size:15px;">Tu navegador tiene JavaScript desactivado o es una versión antigua. Podés acceder a la versión liviana compatible:</p>
+        <p style="margin:0;"><a href="/lite/" style="display:inline-block;padding:10px 16px;background:#2C6E9E;color:#FFFFFF;text-decoration:none;font-weight:bold;">Abrir versión liviana (/lite/)</a></p>
+      </div>
+    </noscript>
+    <script nomodule>
+      (function () {
+        var root = document.getElementById("root");
+        if (root) {
+          root.innerHTML =
+            '<div style="max-width:680px;margin:32px auto;padding:20px;background:#FFFFFF;border:1px solid #D6E1EB;font-family:Arial,sans-serif;color:#1E252D;">' +
+            '<h1 style="margin:0 0 8px 0;font-size:20px;">I+S Data Solutions — Diagnóstico de Madurez de Datos &amp; BI</h1>' +
+            '<p style="margin:0 0 12px 0;font-size:15px;">Detectamos un navegador que no soporta módulos JavaScript modernos. Usá nuestra versión liviana de alta compatibilidad:</p>' +
+            '<p style="margin:0;"><a href="/lite/" style="display:inline-block;padding:10px 16px;background:#2C6E9E;color:#FFFFFF;text-decoration:none;font-weight:bold;">Ir a la versión liviana (/lite/)</a></p>' +
+            '</div>';
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

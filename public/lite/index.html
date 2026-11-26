@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I+S Data Solutions — Diagnóstico de Madurez de Datos &amp; BI (Versión Liviana)</title>
+  <meta name="description" content="Versión liviana y retrocompatible del Diagnóstico de Madurez de Datos y Business Intelligence de Information + Solutions (I+S Data Solutions).">
+  <link rel="stylesheet" href="./lite.css">
+</head>
+<body>
+  <a href="#contenido-principal" class="skip-link">Saltar al contenido principal</a>
+
+  <!-- Encabezado superior visible en todos los navegadores -->
+  <header class="topbar" role="banner">
+    <div class="topbar-inner cf">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">I+S</span>
+        <div class="brand-text">
+          <div class="brand-title">Information + Solutions</div>
+          <div class="brand-sub">Data Solutions · Versión Liviana</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a href="../" class="link-modern">Ir a la versión completa</a>
+      </div>
+    </div>
+  </header>
+
+  <noscript>
+    <div class="noscript-banner" role="note">
+      <strong>Modo sin JavaScript activo:</strong> Podés leer todas las secciones, revisar el Diagnóstico Modelo, la Matriz Oficial y el Perfil Profesional, o imprimir el cuestionario. Para calcular el puntaje automáticamente y descargar el informe en .txt, habilitá JavaScript en tu navegador.
+    </div>
+  </noscript>
+
+  <div class="page-wrap cf">
+    <!-- Navegación lateral (enlaces de ancla reales: funcionan sin JS) -->
+    <aside class="sidebar" aria-label="Navegación principal">
+      <nav role="navigation">
+        <ul class="nav-list" id="lite-nav-list">
+          <li><a href="#propuesta" data-section="propuesta" class="nav-link">Propuesta de Trabajo</a></li>
+          <li><a href="#diagnostico" data-section="diagnostico" class="nav-link is-active">Nuevo Diagnóstico</a></li>
+          <li><a href="#modelo" data-section="modelo" class="nav-link">Diagnóstico Modelo</a></li>
+          <li><a href="#metodologia" data-section="metodologia" class="nav-link">Matriz &amp; Metodología</a></li>
+          <li><a href="#perfil" data-section="perfil" class="nav-link">Perfil Profesional</a></li>
+        </ul>
+
+        <div class="nav-linkedin-wrap">
+          <a
+            href="https://www.linkedin.com/in/diegoandrada/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-linkedin"
+          >
+            Conectar en LinkedIn &rarr;
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Propuesta de Valor I+S</div>
+        <p class="sidebar-quote">
+          &ldquo;El valor real no está en acumular datos, sino en saber utilizarlos para decidir mejor.&rdquo;
+        </p>
+        <div class="sidebar-meta">E. Carriego N° 431, La Rioja · I+S Data</div>
+      </div>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main id="contenido-principal" class="main-content" role="main" tabindex="-1">
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN: NUEVO DIAGNÓSTICO (activa por defecto con JS)          -->
+      <!-- =============================================================== -->
+      <section id="diagnostico" class="app-section" aria-labelledby="h-diagnostico">
+        <div class="hero-box">
+          <div class="hero-kicker">ACCESO AL DIAGNÓSTICO DE MADUREZ DE DATOS &amp; BI · LA RIOJA, ARGENTINA</div>
+          <h1 id="h-diagnostico" class="hero-title">Diagnóstico de Madurez de Datos &amp; BI</h1>
+          <p class="hero-subtitle">
+            Descubra el nivel analítico de su organización y su hoja de ruta hacia Business Intelligence. Tiempo estimado: 5 a 7 minutos.
+          </p>
+        </div>
+
+        <!-- Resultado generado dinámicamente por ES5 -->
+        <div id="reporte-resultado" class="panel report-panel is-hidden" aria-live="polite">
+          <div id="reporte-alerta" class="notice-box" role="status"></div>
+          <div id="reporte-cuerpo"></div>
+        </div>
+
+        <!-- Formulario de autodiagnóstico -->
+        <div id="contenedor-formulario">
+          <div class="panel">
+            <p class="lead-text">
+              Acceda a un diagnóstico integral para evaluar cómo su organización captura, integra y aprovecha sus datos, identificar cuellos de botella operativos y recibir un informe inmediato con el plan recomendado para su primer sistema de tableros de control.
+            </p>
+            <table class="summary-table" role="presentation">
+              <tr>
+                <td>
+                  <strong>01 · Evalúe 5 dimensiones</strong><br>
+                  Fuentes, integración, frecuencia, calidad y reportabilidad actual.
+                </td>
+                <td>
+                  <strong>02 · Conozca su nivel BI</strong><br>
+                  Score ponderado (0 a 100) y desglose por dimensión de madurez.
+                </td>
+                <td>
+                  <strong>03 · Obtenga su plan</strong><br>
+                  Solución inicial recomendada y pasos clave para su primer tablero.
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div id="form-error" class="error-box is-hidden" role="alert" tabindex="-1"></div>
+
+          <form id="diagnostico-form" action="#diagnostico" method="get" novalidate>
+            <!-- Datos del diagnóstico -->
+            <div class="panel">
+              <h2 class="section-heading">Datos del Diagnóstico</h2>
+              <div class="field-row">
+                <label for="f-evaluador" class="field-label">Evaluador o consultor (opcional)</label>
+                <input type="text" id="f-evaluador" name="evaluador" class="text-input" placeholder="Dejar vacío para autodiagnóstico">
+              </div>
+            </div>
+
+            <!-- 01. Datos Generales -->
+            <div class="panel">
+              <h2 class="section-heading">01. Datos Generales de la Organización <span class="step-tag">1 / 5</span></h2>
+
+              <div class="two-col cf">
+                <div class="col-half">
+                  <div class="field-row">
+                    <label for="f-responsable" class="field-label">Nombre y Apellido del responsable <span class="req">*</span></label>
+                    <input type="text" id="f-responsable" name="responsable" class="text-input" required placeholder="Ej: Juan Pérez">
+                  </div>
+                </div>
+                <div class="col-half col-half-last">
+                  <div class="field-row">
+                    <label for="f-rol" class="field-label">Cargo / Rol en la organización</label>
+                    <input type="text" id="f-rol" name="rol" class="text-input" placeholder="Ej: Gerente de Operaciones / Dueño">
+                  </div>
+                </div>
+              </div>
+
+              <div class="two-col cf">
+                <div class="col-half">
+                  <div class="field-row">
+                    <label for="f-empresa" class="field-label">Nombre de la empresa u organización <span class="req">*</span></label>
+                    <input type="text" id="f-empresa" name="empresa" class="text-input" required placeholder="Ej: Bodegas Andinas S.A.">
+                  </div>
+                </div>
+                <div class="col-half col-half-last">
+                  <div class="field-row">
+                    <label for="f-colaboradores" class="field-label">Cantidad aproximada de colaboradores</label>
+                    <select id="f-colaboradores" name="colaboradores" class="select-input">
+                      <option value="1 a 10">1 a 10 colaboradores</option>
+                      <option value="11 a 50" selected>11 a 50 colaboradores</option>
+                      <option value="51 a 200">51 a 200 colaboradores</option>
+                      <option value="Más de 200">Más de 200 colaboradores</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <label for="f-sector" class="field-label">Sector o actividad principal</label>
+                <select id="f-sector" name="sector" class="select-input">
+                  <option value="Agroindustria / Olivícola">Agroindustria / Olivícola</option>
+                  <option value="Comercio mayorista / minorista">Comercio mayorista / minorista</option>
+                  <option value="Servicios profesionales / Consultoría">Servicios profesionales / Consultoría</option>
+                  <option value="Logística / Distribución">Logística / Distribución</option>
+                  <option value="Industria / Manufactura">Industria / Manufactura</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+
+              <div id="wrap-sector-otro" class="field-row is-hidden">
+                <label for="f-sector-otro" class="field-label">Especifique el sector o actividad <span class="req">*</span></label>
+                <input type="text" id="f-sector-otro" name="sector_otro" class="text-input" placeholder="Ej: Fintech, Energía solar...">
+              </div>
+            </div>
+
+            <!-- 02. Almacenamiento y Fuentes -->
+            <div class="panel">
+              <h2 class="section-heading">02. Almacenamiento y Fuentes de Información <span class="step-tag">2 / 5</span></h2>
+
+              <fieldset class="option-fieldset">
+                <legend class="field-label">¿Dónde se registra y almacena hoy la mayor parte de la información operativa y comercial? (Seleccione todas las que apliquen)</legend>
+                <label class="option-item">
+                  <input type="checkbox" name="fuentes" value="spreadsheets" checked>
+                  <span>Planillas de cálculo (Excel, Google Sheets) en carpetas locales o compartidas</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="fuentes" value="erp">
+                  <span>Software de gestión o ERP (Tango, Bejerman, SAP, Odoo, sistema a medida, etc.)</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="fuentes" value="billing">
+                  <span>Sistema de facturación electrónica o comprobantes fiscales</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="fuentes" value="crm">
+                  <span>CRM o plataformas de ventas / e-commerce</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="fuentes" value="paper">
+                  <span>Documentos en papel / cuadernos de registro diario</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="fuentes" value="other" id="cb-fuente-otro">
+                  <span>Otro</span>
+                </label>
+              </fieldset>
+
+              <div id="wrap-fuente-otro" class="field-row is-hidden">
+                <label for="f-fuente-otro" class="field-label">Especifique otro medio de almacenamiento <span class="req">*</span></label>
+                <input type="text" id="f-fuente-otro" name="fuente_otro" class="text-input" placeholder="Ej: PostgreSQL, Access, Notion...">
+              </div>
+
+              <fieldset class="option-fieldset">
+                <legend class="field-label">¿Cómo calificaría la integración entre sus distintas áreas (ventas, compras, administración, operaciones)?</legend>
+                <label class="option-item">
+                  <input type="radio" name="integracion" value="1">
+                  <span>1 - Muy fragmentada: Cada área maneja sus propios archivos y no coinciden entre sí.</span>
+                </label>
+                <label class="option-item">
+                  <input type="radio" name="integracion" value="2" checked>
+                  <span>2 - Básica: Hay sistemas distintos y cruzamos datos manualmente a fin de mes.</span>
+                </label>
+                <label class="option-item">
+                  <input type="radio" name="integracion" value="3">
+                  <span>3 - Parcialmente integrada: Usamos un sistema central pero con muchas planillas auxiliares.</span>
+                </label>
+                <label class="option-item">
+                  <input type="radio" name="integracion" value="4">
+                  <span>4 - Integrada: Toda la información clave convive en una única base de datos.</span>
+                </label>
+              </fieldset>
+            </div>
+
+            <!-- 03. Recolección, Actualización y Calidad -->
+            <div class="panel">
+              <h2 class="section-heading">03. Recolección, Actualización y Calidad <span class="step-tag">3 / 5</span></h2>
+
+              <div class="two-col cf">
+                <div class="col-half">
+                  <fieldset class="option-fieldset">
+                    <legend class="field-label">¿Con qué frecuencia se actualizan los datos clave del negocio?</legend>
+                    <label class="option-item">
+                      <input type="radio" name="frecuencia" value="realtime">
+                      <span>Tiempo real / diaria</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="frecuencia" value="weekly" checked>
+                      <span>Semanal</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="frecuencia" value="monthly">
+                      <span>Mensual (al cierre administrativo)</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="frecuencia" value="eventual">
+                      <span>Eventual / solo cuando se necesita un informe puntual</span>
+                    </label>
+                  </fieldset>
+                </div>
+
+                <div class="col-half col-half-last">
+                  <fieldset class="option-fieldset">
+                    <legend class="field-label">¿Qué nivel de confianza tiene en la consistencia de sus datos actuales?</legend>
+                    <label class="option-item">
+                      <input type="radio" name="confianza" value="low">
+                      <span>Bajo: Solemos encontrar duplicados, errores de carga o números que no cierran.</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="confianza" value="medium" checked>
+                      <span>Medio: Los datos son confiables pero requieren revisión y limpieza manual previa.</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="confianza" value="high">
+                      <span>Alto: Los registros son consistentes, estandarizados y auditados periódicamente.</span>
+                    </label>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+
+            <!-- 04. Generación de Reportes y Toma de Decisiones -->
+            <div class="panel">
+              <h2 class="section-heading">04. Generación de Reportes y Toma de Decisiones <span class="step-tag">4 / 5</span></h2>
+
+              <div class="two-col cf">
+                <div class="col-half">
+                  <fieldset class="option-fieldset">
+                    <legend class="field-label">¿Cuánto tiempo le toma a su equipo consolidar los reportes periódicos?</legend>
+                    <label class="option-item">
+                      <input type="radio" name="tiempo_reporte" value="hours_days" checked>
+                      <span>Horas o días de trabajo manual recopilando y cruzando planillas.</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="tiempo_reporte" value="half_day">
+                      <span>Medio día, con plantillas prearmadas pero manuales.</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="tiempo_reporte" value="minutes">
+                      <span>Se obtienen en minutos de forma automática.</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="tiempo_reporte" value="none">
+                      <span>No contamos con reportes periódicos formales.</span>
+                    </label>
+                  </fieldset>
+                </div>
+
+                <div class="col-half col-half-last">
+                  <fieldset class="option-fieldset">
+                    <legend class="field-label">¿Qué herramienta utilizan actualmente para visualizar los indicadores?</legend>
+                    <label class="option-item">
+                      <input type="radio" name="herramienta" value="excel" checked>
+                      <span>Planillas de Excel / tablas dinámicas</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="herramienta" value="static_pdf">
+                      <span>Reportes estáticos en PDF / impresos</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="herramienta" value="bi_tools">
+                      <span>Herramientas de BI (Power BI, Looker Studio, Tableau)</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="herramienta" value="erp_native">
+                      <span>Informes nativos del ERP / software contable</span>
+                    </label>
+                    <label class="option-item">
+                      <input type="radio" name="herramienta" value="none">
+                      <span>Ninguna / sólo consultas directas puntuales</span>
+                    </label>
+                  </fieldset>
+                </div>
+              </div>
+
+              <fieldset class="option-fieldset">
+                <legend class="field-label">
+                  ¿Cuáles son los principales obstáculos que enfrenta la dirección al tomar decisiones?
+                  <span class="hint-text" id="obstaculos-contador">(Seleccione hasta 3)</span>
+                </legend>
+                <label class="option-item">
+                  <input type="checkbox" name="obstaculos" value="Demora en obtener números actualizados." checked>
+                  <span>Demora en obtener números actualizados.</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="obstaculos" value="Falta de claridad o acuerdo sobre cuáles son los KPIs prioritarios.">
+                  <span>Falta de claridad o acuerdo sobre cuáles son los KPIs prioritarios.</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="obstaculos" value="Discrepancias entre los datos de distintos departamentos.">
+                  <span>Discrepancias entre los datos de distintos departamentos.</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="obstaculos" value="Dificultad para visualizar tendencias o anomalías a tiempo.">
+                  <span>Dificultad para visualizar tendencias o anomalías a tiempo.</span>
+                </label>
+                <label class="option-item">
+                  <input type="checkbox" name="obstaculos" value="Dependencia excesiva de una persona clave para armar los reportes.">
+                  <span>Dependencia excesiva de una persona clave para armar los reportes.</span>
+                </label>
+              </fieldset>
+            </div>
+
+            <!-- 05. Prioridades y Expectativas -->
+            <div class="panel">
+              <h2 class="section-heading">05. Prioridades y Expectativas <span class="step-tag">5 / 5</span></h2>
+
+              <div class="field-row">
+                <label for="f-prioridad" class="field-label">Área o proceso prioritario para implementar su primer tablero</label>
+                <select id="f-prioridad" name="prioridad" class="select-input">
+                  <option value="Ventas, cobranzas y margen comercial">Ventas, cobranzas y margen comercial</option>
+                  <option value="Control de stock, inventario y compras">Control de stock, inventario y compras</option>
+                  <option value="Eficiencia operativa / rendimientos de producción">Eficiencia operativa / rendimientos de producción</option>
+                  <option value="Flujo de caja (cash flow) y costos">Flujo de caja (cash flow) y costos</option>
+                  <option value="Rendimiento de clientes o cartera morosa">Rendimiento de clientes o cartera morosa</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+
+              <div id="wrap-prioridad-otro" class="field-row is-hidden">
+                <label for="f-prioridad-otro" class="field-label">Especifique el área o proceso prioritario <span class="req">*</span></label>
+                <input type="text" id="f-prioridad-otro" name="prioridad_otro" class="text-input" placeholder="Ej: Logística de frío, mermas...">
+              </div>
+
+              <fieldset class="option-fieldset">
+                <legend class="field-label">Valor principal esperado de la implementación de BI</legend>
+                <label class="option-item">
+                  <input type="radio" name="valor_esperado" value="Ahorro de tiempo operativo en el armado de informes." checked>
+                  <span>Ahorro de tiempo operativo en el armado de informes.</span>
+                </label>
+                <label class="option-item">
+                  <input type="radio" name="valor_esperado" value="Visibilidad ejecutiva en tiempo real accesible desde el celular o la web.">
+                  <span>Visibilidad ejecutiva en tiempo real accesible desde el celular o la web.</span>
+                </label>
+                <label class="option-item">
+                  <input type="radio" name="valor_esperado" value="Anticipar desvíos antes del cierre mensual.">
+                  <span>Anticipar desvíos antes del cierre mensual.</span>
+                </label>
+                <label class="option-item">
+                  <input type="radio" name="valor_esperado" value="Mayor precisión en la planificación comercial y presupuestaria.">
+                  <span>Mayor precisión en la planificación comercial y presupuestaria.</span>
+                </label>
+              </fieldset>
+            </div>
+
+            <!-- Observaciones adicionales -->
+            <div class="panel">
+              <div class="field-row">
+                <label for="f-observaciones" class="field-label">Observaciones o contexto adicional (opcional)</label>
+                <textarea id="f-observaciones" name="observaciones" rows="3" class="text-input" placeholder="Sistemas específicos en uso, urgencias comerciales o comentarios útiles para el diagnóstico..."></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary btn-block">
+                Finalizar y Obtener Diagnóstico de Madurez
+              </button>
+            </div>
+
+            <div class="privacy-bar cf">
+              <span class="privacy-text">
+                Tus respuestas se procesan localmente en este navegador y no se envían a servidores externos.
+              </span>
+              <button type="button" id="btn-borrar-local" class="btn-secondary is-hidden">
+                Borrar historial local
+              </button>
+            </div>
+            <div id="clear-feedback" class="hint-text" role="status"></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN: PROPUESTA DE TRABAJO                                   -->
+      <!-- =============================================================== -->
+      <section id="propuesta" class="app-section" aria-labelledby="h-propuesta">
+        <div class="hero-box">
+          <div class="hero-kicker">MODELO DE TRABAJO I+S · LA RIOJA, ARGENTINA</div>
+          <h1 id="h-propuesta" class="hero-title">Propuesta de Servicios y Modelo de Trabajo</h1>
+          <p class="hero-subtitle">Inteligencia de Datos para Decisiones Estratégicas en Empresas y Productores</p>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">01. Quiénes Somos y Filosofía</h2>
+          <blockquote class="quote-box">
+            &ldquo;El valor real no está en acumular datos, sino en saber utilizarlos para decidir mejor.&rdquo;
+          </blockquote>
+          <p>
+            En un entorno productivo y comercial cada vez más dinámico, las organizaciones no sufren por falta de información, sino por la dificultad de procesarla a tiempo y con precisión.
+          </p>
+          <p>
+            <strong>I+S Data Solutions</strong> es una consultora interdisciplinaria que ayuda a empresas, instituciones y unidades productivas a transformar registros dispersos en <strong>sistemas visuales de control y análisis en tiempo real</strong>. Conectamos la realidad operativa con herramientas modernas de Business Intelligence para que cada decisión estratégica esté respaldada por evidencia concreta y confiable.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">02. Nuestro Enfoque: De los datos aislados a la acción concreta</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Etapa</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>01. Fuentes de Datos</strong></td>
+                <td>Planillas, ERP, comprobantes fiscales y CRM dispersos.</td>
+              </tr>
+              <tr>
+                <td><strong>02. Integración y Limpieza</strong></td>
+                <td>Normalización y diccionario de métricas único.</td>
+              </tr>
+              <tr>
+                <td><strong>03. Tableros Interactivos</strong></td>
+                <td>Dashboards web y móviles con filtros ágiles.</td>
+              </tr>
+              <tr>
+                <td><strong>04. Decisión Asertiva</strong></td>
+                <td>Anticipación de desvíos, ahorro de horas y mejora de margen.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="mt-12">
+            <strong>Pilares:</strong> <strong>Objetividad</strong> (métricas estandarizadas sin contradicciones), <strong>Oportunidad</strong> (indicadores en tiempo real) y <strong>Claridad</strong> (información visual y accesible para dirección y mandos medios).
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">03. Nuestro Producto: Business Intelligence y Analítica de Gestión</h2>
+          <div class="two-col cf">
+            <div class="col-half">
+              <div class="subbox subbox-bronze">
+                <h3 class="subbox-title bronze-text">¿Qué problemas resolvemos?</h3>
+                <ul class="bullet-list">
+                  <li><strong>Fin de planillas fragmentadas:</strong> Eliminamos inconsistencias entre archivos que no coinciden.</li>
+                  <li><strong>Ahorro de horas manuales:</strong> Chau al armado repetitivo y estresante de reportes a fin de mes.</li>
+                  <li><strong>Detección temprana de desvíos:</strong> Alertas visibles en costos, márgenes, compras y cobranzas.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-half col-half-last">
+              <div class="subbox">
+                <h3 class="subbox-title blue-text">Fases de Implementación</h3>
+                <ol class="num-list">
+                  <li><strong>Auditoría e Integración:</strong> Conexión de ERP, hojas de cálculo, comprobantes fiscales y CRM.</li>
+                  <li><strong>Modelado y Gobernanza:</strong> Definición de KPIs críticos con diccionario unificado.</li>
+                  <li><strong>Tableros Interactivos:</strong> Despliegue accesible desde PC y dispositivos móviles.</li>
+                  <li><strong>Capacitación y Adopción:</strong> Transferencia práctica para uso autónomo continuo.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">04. Trayectoria y Respaldo Regional</h2>
+          <ul class="bullet-list">
+            <li><strong>Sector Agroindustrial y Olivícola:</strong> Sinopsis estadísticas, mapeos territoriales, costos y rendimientos productivos.</li>
+            <li><strong>Instituciones y Cámaras:</strong> Plataformas de información para organismos de desarrollo productivo y colegios profesionales.</li>
+            <li><strong>Consultoría Empresarial:</strong> Asesoramiento técnico en estructuración de flujos de datos para decisiones gerenciales.</li>
+          </ul>
+        </div>
+
+        <div class="dark-panel">
+          <h2 class="dark-heading">Contacto e Inicio de Proyecto</h2>
+          <p><strong>Ubicación:</strong> E. Carriego N° 431, La Rioja, Argentina.</p>
+          <p><strong>Diagnóstico inicial sin cargo:</strong> Evaluamos el estado actual de los datos de su empresa y le presentamos una propuesta a medida para su primer tablero de control.</p>
+          <p class="mt-12">
+            <a href="https://www.linkedin.com/in/diegoandrada/" target="_blank" rel="noopener noreferrer" class="btn-linkedin btn-inline">
+              Ver perfil en LinkedIn &rarr;
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN: DIAGNÓSTICO MODELO                                     -->
+      <!-- =============================================================== -->
+      <section id="modelo" class="app-section" aria-labelledby="h-modelo">
+        <div class="hero-box">
+          <div class="hero-kicker">CASO MODELO DE REFERENCIA · LA RIOJA, ARGENTINA</div>
+          <h1 id="h-modelo" class="hero-title">Diagnóstico Modelo y Propuesta Asociada</h1>
+          <p class="hero-subtitle">Ejemplo completo del informe de madurez y la propuesta técnica de Business Intelligence que entregamos a cada organización.</p>
+        </div>
+
+        <div class="toolbar-row cf no-print">
+          <button type="button" class="btn-secondary" id="btn-print-modelo">Imprimir Caso Modelo</button>
+          <button type="button" class="btn-primary" id="btn-download-modelo">Descargar Caso Modelo (.txt)</button>
+        </div>
+
+        <div class="dark-panel">
+          <div class="dark-kicker">Caso Modelo de Referencia · 2026-11-15</div>
+          <h2 class="dark-title">Distribuidora Cuyo Express S.A.</h2>
+          <p>
+            <strong>Referente:</strong> Valeria Gómez (Directora de Operaciones) · <strong>Sector:</strong> Comercio mayorista / minorista · <strong>Equipo:</strong> 51 a 200 colaboradores
+          </p>
+          <p class="dark-score">
+            <strong>Resultado:</strong> Nivel 2: Operativo / Estructurado — <strong>Score Global: 65.8 / 100 pts</strong>
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">01. Desglose por Dimensión y Hallazgos Técnicos</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Dimensión</th>
+                <th class="col-score">Puntaje</th>
+                <th>Hallazgo Técnico</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Almacenamiento y Fuentes</strong></td>
+                <td class="col-score">
+                  <div class="bar-track"><div class="bar-fill bar-blue" style="width: 75%;"></div></div>
+                  <span class="mono">75%</span>
+                </td>
+                <td>ERP y facturación electrónica operativos, pero coexisten con planillas paralelas de control.</td>
+              </tr>
+              <tr>
+                <td><strong>Integración entre Áreas</strong></td>
+                <td class="col-score">
+                  <div class="bar-track"><div class="bar-fill bar-red" style="width: 50%;"></div></div>
+                  <span class="mono">50%</span>
+                </td>
+                <td>Cruce manual de información entre ventas, depósito y compras al cierre de cada período.</td>
+              </tr>
+              <tr>
+                <td><strong>Frecuencia de Actualización</strong></td>
+                <td class="col-score">
+                  <div class="bar-track"><div class="bar-fill bar-blue" style="width: 75%;"></div></div>
+                  <span class="mono">75%</span>
+                </td>
+                <td>Consolidación semanal; sin visibilidad intradía sobre quiebres críticos de inventario.</td>
+              </tr>
+              <tr>
+                <td><strong>Calidad y Consistencia</strong></td>
+                <td class="col-score">
+                  <div class="bar-track"><div class="bar-fill bar-bronze" style="width: 65%;"></div></div>
+                  <span class="mono">65%</span>
+                </td>
+                <td>Base confiable en origen, aunque requiere limpieza y validación manual antes de reportar.</td>
+              </tr>
+              <tr>
+                <td><strong>Eficiencia de Reportes</strong></td>
+                <td class="col-score">
+                  <div class="bar-track"><div class="bar-fill bar-bronze" style="width: 70%;"></div></div>
+                  <span class="mono">70%</span>
+                </td>
+                <td>Medio día de trabajo operativo para armar informes con plantillas semi-manuales.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="mt-12">
+            <strong>Criterio Diagnóstico:</strong> Cuentan con ERP o facturación centralizada, pero reportan en Excel manual. Foco prioritario declarado: <strong>Control de stock, inventario y compras</strong>.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">02. Propuesta de Implementación Derivada (Horizonte: 6 semanas)</h2>
+          <p>
+            <strong>Solución Recomendada:</strong> Pipeline y Data Modeling — Conexión a la base de datos del ERP Tango y facturación electrónica + Tablero Ejecutivo de Stock, Rotación y Quiebres accesible desde web y celular sin interrumpir la operación diaria.
+          </p>
+
+          <table class="data-table mt-12">
+            <thead>
+              <tr>
+                <th>Fase</th>
+                <th>Plazo</th>
+                <th>Alcance y Entregable</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Fase 1</strong></td>
+                <td class="mono">Semana 1</td>
+                <td><strong>Auditoría de Fuentes y Diccionario de KPIs:</strong> Mapeo de tablas del ERP Tango, comprobantes fiscales y métricas de inventario, rotación y quiebres.</td>
+              </tr>
+              <tr>
+                <td><strong>Fase 2</strong></td>
+                <td class="mono">Semanas 2–3</td>
+                <td><strong>Pipeline Automatizado y Modelado:</strong> Extracción y limpieza automatizada sin planillas intermedias, con modelo estrella listo para analítica.</td>
+              </tr>
+              <tr>
+                <td><strong>Fase 3</strong></td>
+                <td class="mono">Semanas 4–5</td>
+                <td><strong>Tablero Ejecutivo de Stock y Compras:</strong> Panel interactivo en Power BI / Looker Studio con alertas de punto de pedido y cobertura por SKU.</td>
+              </tr>
+              <tr>
+                <td><strong>Fase 4</strong></td>
+                <td class="mono">Semana 6</td>
+                <td><strong>Capacitación y Puesta en Marcha:</strong> Transferencia práctica al equipo de operaciones y dirección, y seguimiento inicial de indicadores.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="mt-12">
+            <strong>Impacto esperado:</strong> Consolidación de reportes de medio día a <strong>0 minutos manuales</strong>; frecuencia de decisión de <strong>semanal a diaria</strong>; visibilidad ejecutiva unificada para dirección, compras y depósito.
+          </p>
+          <p class="mt-12 no-print">
+            <a href="#diagnostico" data-section="diagnostico" class="btn-primary btn-inline js-goto">
+              Iniciar Nuevo Diagnóstico para su Organización &rarr;
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN: MATRIZ & METODOLOGÍA                                   -->
+      <!-- =============================================================== -->
+      <section id="metodologia" class="app-section" aria-labelledby="h-metodologia">
+        <div class="hero-box">
+          <div class="hero-kicker">METODOLOGÍA I+S DATA SOLUTIONS · LA RIOJA, ARGENTINA</div>
+          <h1 id="h-metodologia" class="hero-title">Matriz Oficial de Evaluación Interna</h1>
+          <p class="hero-subtitle">Criterios y soluciones recomendadas según el nivel de madurez analítica identificado.</p>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">Nivel 1: Inicial / Disperso <span class="badge-level level-1">0 a 44.9 pts</span></h2>
+          <p><strong>Criterio Diagnóstico:</strong> Uso intensivo de planillas aisladas, datos en papel, reportes manuales lentos.</p>
+          <p><strong>Solución Inicial Recomendada:</strong> Normalización y Tablero Base: Limpieza de datos + conexión de planillas a Looker Studio / Power BI con métricas comerciales directas.</p>
+          <ol class="num-list">
+            <li>Digitalizar y estandarizar planillas críticas.</li>
+            <li>Eliminar registros en papel o cuadernos.</li>
+            <li>Construir el primer tablero comercial unificado (ventas y cobros).</li>
+            <li>Capacitar al equipo en buenas prácticas de carga.</li>
+          </ol>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">Nivel 2: Operativo / Estructurado <span class="badge-level level-2">45 a 74.9 pts</span></h2>
+          <p><strong>Criterio Diagnóstico:</strong> Cuentan con ERP o facturación centralizada, pero reportan en Excel manual.</p>
+          <p><strong>Solución Inicial Recomendada:</strong> Pipeline y Data Modeling: Conexión a la base de datos o exportaciones automáticas + Tablero Ejecutivo de KPIs estratégicos.</p>
+          <ol class="num-list">
+            <li>Conectar BI directamente a la base del ERP / facturación.</li>
+            <li>Automatizar el pipeline de extracción y transformación de datos.</li>
+            <li>Desarrollar tablero directivo multidisciplinario (ventas, stock y finanzas).</li>
+            <li>Reducir el tiempo de preparación de informes de días a minutos.</li>
+          </ol>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">Nivel 3: Avanzado / Preparado <span class="badge-level level-3">75 a 100 pts</span></h2>
+          <p><strong>Criterio Diagnóstico:</strong> Datos integrados y actualizados, buscan autonomía y exploración profunda.</p>
+          <p><strong>Solución Inicial Recomendada:</strong> BI Integral &amp; Analítica Predictiva: Tableros drill-down multidimensionales, alertas automáticas y preparación para modelos de IA.</p>
+          <ol class="num-list">
+            <li>Implementar alertas tempranas de desvíos y anomalías.</li>
+            <li>Modelos de segmentación avanzada de clientes y forecasting de demanda.</li>
+            <li>Gobernanza y democratización de datos (autoservicio BI).</li>
+            <li>Integración de analítica predictiva y modelos de machine learning.</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN: PERFIL PROFESIONAL                                     -->
+      <!-- =============================================================== -->
+      <section id="perfil" class="app-section" aria-labelledby="h-perfil">
+        <div class="hero-box">
+          <div class="hero-kicker">PERFIL PROFESIONAL · LA RIOJA, ARGENTINA</div>
+          <h1 id="h-perfil" class="hero-title">Diego Jesús Andrada</h1>
+          <p class="hero-subtitle">Director General de Análisis de Datos · Consultor en Business Intelligence y Ciencia de Datos</p>
+        </div>
+
+        <div class="panel">
+          <p>
+            Profesional radicado en <strong>La Rioja Capital, Argentina</strong>, que combina una formación de base en <strong>Comercialización</strong> con especialización técnica en <strong>Ciencia de Datos y Business Intelligence</strong>.
+          </p>
+          <p>
+            Su enfoque une la comprensión práctica de los objetivos comerciales y operativos con el procesamiento, modelado y visualización de datos a escala, transformando información dispersa en tableros claros y accionables para organizaciones públicas y privadas.
+          </p>
+          <p class="mt-12">
+            <a href="https://www.linkedin.com/in/diegoandrada/" target="_blank" rel="noopener noreferrer" class="btn-linkedin btn-inline">
+              Ver perfil completo en LinkedIn &rarr;
+            </a>
+          </p>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">01. Experiencia y Liderazgo en Datos</h2>
+          <div class="entry-block">
+            <h3 class="entry-title">Director General de Análisis de Datos <span class="mono step-tag">Dic. 2019 — Actualidad</span></h3>
+            <div class="entry-org">Secretaría de Gestión Estratégica · Jefatura de Gabinete · Gobierno de La Rioja</div>
+            <ul class="bullet-list">
+              <li>Liderazgo de equipos técnicos en procesamiento de información estratégica y control de gestión.</li>
+              <li>Diseño de tableros de comando e informes ejecutivos para la toma de decisiones en políticas públicas.</li>
+              <li>Implementación y administración de sistemas de gestión digital y expedientes electrónicos (Selex).</li>
+            </ul>
+          </div>
+          <div class="entry-block entry-divider">
+            <h3 class="entry-title">Fundador &amp; Consultor en Business Intelligence <span class="step-tag">Consultoría independiente</span></h3>
+            <div class="entry-org">Information + Solutions (I+S Data Solutions)</div>
+            <ul class="bullet-list">
+              <li>Diagnósticos de madurez de datos para PyMEs, comercio, sector agroindustrial e instituciones.</li>
+              <li>Normalización de fuentes heterogéneas (ERP, planillas, facturación y CRM) y definición de KPIs críticos.</li>
+              <li>Despliegue de tableros interactivos y capacitación para adopción autónoma.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2 class="section-heading">02. Formación Académica y Stack Tecnológico</h2>
+          <ul class="bullet-list">
+            <li><strong>Tecnicatura en Ciencia de Datos</strong> — Universidad Nacional de Chilecito (UNdeC).</li>
+            <li><strong>Formación de Base en Comercialización</strong> — Enfoque estratégico comercial y rentabilidad aplicada a datos.</li>
+            <li><strong>Business Intelligence &amp; Visualización:</strong> Power BI, Tableau, Looker Studio (Google Data Studio), tableros de comando y control de gestión.</li>
+            <li><strong>Ciencia de Datos &amp; Gestión:</strong> Python, Análisis Exploratorio de Datos (EDA), Machine Learning, Big Data, Sistemas de Información Geográfica (SIG/GIS) y metodologías ágiles.</li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="site-footer" role="contentinfo">
+    Information + Solutions (I+S Data Solutions) · E. Carriego N° 431, La Rioja, Argentina · Versión liviana de alta compatibilidad
+  </footer>
+
+  <!-- ES5 puro: sin módulos, sin bundlers, sin APIs modernas obligatorias -->
+  <script src="./lite.js"></script>
+</body>
+</html>
