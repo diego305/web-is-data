@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FileText,
   FileCheck2,
@@ -11,7 +11,11 @@ import {
   ExternalLink
 } from "lucide-react";
 import { AppSquircleIcon } from "./BrandHeader";
-import { LINKEDIN_PROFILE_URL } from "../config/constants";
+import { LinkedInIcon } from "./LinkedInIcon";
+import {
+  COMPANY_ADDRESS_SHORT,
+  LINKEDIN_PROFILE_URL
+} from "../config/constants";
 
 export type NavModule = "form" | "model" | "proposal" | "methodology" | "profile";
 
@@ -26,31 +30,42 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileOpen]);
+
   const menuItems: { id: NavModule; label: string; icon: React.ReactNode }[] = [
     {
       id: "proposal",
       label: "Propuesta de Trabajo",
-      icon: <Briefcase className="w-4 h-4 text-[#BFA898]" />
+      icon: <Briefcase className="w-4 h-4 text-[#7A5F4B]" aria-hidden="true" />
     },
     {
       id: "form",
       label: "Nuevo Diagnóstico",
-      icon: <FileText className="w-4 h-4 text-[#3B8AC4]" />
+      icon: <FileText className="w-4 h-4 text-[#2C6E9E]" aria-hidden="true" />
     },
     {
       id: "model",
       label: "Diagnóstico Modelo",
-      icon: <FileCheck2 className="w-4 h-4 text-[#3B8AC4]" />
+      icon: <FileCheck2 className="w-4 h-4 text-[#2C6E9E]" aria-hidden="true" />
     },
     {
       id: "methodology",
       label: "Matriz & Metodología",
-      icon: <HelpCircle className="w-4 h-4 text-slate-500" />
+      icon: <HelpCircle className="w-4 h-4 text-slate-600" aria-hidden="true" />
     },
     {
       id: "profile",
       label: "Perfil Profesional",
-      icon: <UserRound className="w-4 h-4 text-[#3B8AC4]" />
+      icon: <UserRound className="w-4 h-4 text-[#2C6E9E]" aria-hidden="true" />
     }
   ];
 
@@ -62,39 +77,45 @@ export const Navigation: React.FC<NavigationProps> = ({
   return (
     <>
       {/* Mobile Glassmorphic Top Bar */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 glass-header sticky top-0 z-40">
+      <header className="lg:hidden print:hidden flex items-center justify-between px-4 py-2.5 glass-header sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <AppSquircleIcon size={38} />
           <div>
             <div className="text-xs font-semibold text-[#1E252D] font-['Outfit'] tracking-tight leading-tight">
               Information + Solutions
             </div>
-            <div className="text-[10px] text-[#2C6E9E] font-normal tracking-wider uppercase font-['Outfit'] mt-0.5">
+            <div className="text-[10px] text-[#2C6E9E] font-medium tracking-wider uppercase font-['Outfit'] mt-0.5">
               Data Solutions
             </div>
           </div>
         </div>
         <button
+          type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 text-[#1E252D] hover:bg-white rounded-xl border border-[#E4ECF2] bg-white/70 cursor-pointer transition-colors"
-          aria-label="Abrir menú"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#1E252D] hover:bg-white rounded-xl border border-[#E4ECF2] bg-white/80 cursor-pointer transition-colors"
+          aria-label={mobileOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+          aria-expanded={mobileOpen}
+          aria-controls="sidebar-nav"
         >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
         </button>
-      </div>
+      </header>
 
       {/* Backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-[#1E252D]/40 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 bg-[#1E252D]/40 backdrop-blur-xs z-40 lg:hidden print:hidden"
           onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar Desktop & Mobile Drawer */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#F5F8FB] border-r border-[#E4ECF2] flex flex-col p-4 transition-transform duration-200 ease-in-out lg:translate-x-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        id="sidebar-nav"
+        aria-label="Navegación principal"
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#F5F8FB] border-r border-[#E4ECF2] flex flex-col p-4 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:visible print:hidden ${
+          mobileOpen ? "translate-x-0 visible" : "-translate-x-full invisible"
         }`}
       >
         {/* Brand Header */}
@@ -102,19 +123,21 @@ export const Navigation: React.FC<NavigationProps> = ({
           <div className="flex items-center gap-3">
             <AppSquircleIcon size={42} />
             <div>
-              <h2 className="text-sm font-semibold text-[#1E252D] tracking-tight font-['Outfit'] leading-tight">
+              <div className="text-sm font-semibold text-[#1E252D] tracking-tight font-['Outfit'] leading-tight">
                 Information + Solutions
-              </h2>
-              <div className="text-[10px] font-normal text-[#2C6E9E] tracking-widest uppercase font-['Outfit'] mt-0.5">
+              </div>
+              <div className="text-[10px] font-medium text-[#2C6E9E] tracking-widest uppercase font-['Outfit'] mt-0.5">
                 Data Solutions
               </div>
             </div>
           </div>
           <button
+            type="button"
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
+            aria-label="Cerrar menú de navegación"
+            className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-600 hover:text-[#1E252D] hover:bg-white rounded-xl cursor-pointer transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -126,10 +149,12 @@ export const Navigation: React.FC<NavigationProps> = ({
               return (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => handleSelect(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  aria-current={active ? "page" : undefined}
+                  className={`w-full min-h-[44px] lg:min-h-[40px] flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                     active
-                      ? "bg-white text-[#3B8AC4] border border-[#7EBCE6]/50 shadow-xs font-semibold"
+                      ? "bg-white text-[#2C6E9E] border border-[#7EBCE6]/60 shadow-xs font-semibold"
                       : "bg-transparent text-slate-700 hover:bg-white/80 hover:text-[#1E252D]"
                   }`}
                 >
@@ -137,7 +162,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                     {item.icon}
                     <span className="font-['Inter']">{item.label}</span>
                   </div>
-                  {active && <ChevronRight className="w-3.5 h-3.5 text-[#3B8AC4]" />}
+                  {active && <ChevronRight className="w-3.5 h-3.5 text-[#2C6E9E]" aria-hidden="true" />}
                 </button>
               );
             })}
@@ -147,23 +172,17 @@ export const Navigation: React.FC<NavigationProps> = ({
                 href={LINKEDIN_PROFILE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white border border-[#E4ECF2] hover:border-[#0A66C2]/50 hover:bg-[#F0F7FF] text-[#1E252D] transition-colors group"
+                className="w-full min-h-[44px] lg:min-h-[40px] flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white border border-[#E4ECF2] hover:border-[#0A66C2]/50 hover:bg-[#F0F7FF] text-[#1E252D] transition-colors group"
               >
                 <span className="flex items-center gap-2.5 min-w-0">
                   <span className="w-5 h-5 rounded-md bg-[#0A66C2] text-white flex items-center justify-center shrink-0">
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="w-3 h-3 fill-current"
-                      aria-hidden="true"
-                    >
-                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
-                    </svg>
+                    <LinkedInIcon className="w-3 h-3" />
                   </span>
                   <span className="text-xs font-medium font-['Inter'] text-slate-700 group-hover:text-[#0A66C2] transition-colors truncate">
                     Conectar en LinkedIn
                   </span>
                 </span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#0A66C2] transition-colors shrink-0" />
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#0A66C2] transition-colors shrink-0" aria-hidden="true" />
               </a>
             </div>
           </nav>
@@ -173,17 +192,17 @@ export const Navigation: React.FC<NavigationProps> = ({
         <div className="mt-auto pt-4 space-y-3">
           <div className="bg-white rounded-2xl p-3.5 border border-[#E4ECF2] shadow-xs text-xs text-slate-600 space-y-1.5">
             <div className="flex items-center gap-1.5 font-medium text-[#1E252D] text-[11px] font-['Outfit']">
-              <span className="text-[#3B8AC4]">✦</span>
+              <span className="text-[#2C6E9E]" aria-hidden="true">✦</span>
               <span>Propuesta de Valor I+S</span>
             </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-['Inter'] italic">
+            <p className="text-[11px] text-slate-600 leading-relaxed font-['Inter'] italic">
               "El valor real no está en acumular datos, sino en saber utilizarlos para decidir mejor."
             </p>
           </div>
 
-          <div className="pt-3 border-t border-[#E4ECF2] flex items-center justify-between text-[10.5px] text-slate-500 font-medium px-1">
-            <span>E. Carriego N° 431, La Rioja</span>
-            <span className="font-bold text-[#2C6E9E] font-['Outfit']">I+S Data</span>
+          <div className="pt-3 border-t border-[#E4ECF2] flex items-center justify-between text-[11px] text-slate-600 font-medium px-1">
+            <span>{COMPANY_ADDRESS_SHORT}</span>
+            <span className="font-semibold text-[#2C6E9E] font-['Outfit']">I+S Data</span>
           </div>
         </div>
       </aside>

@@ -236,10 +236,15 @@ export const BrandBanner: React.FC<BrandBannerProps> = ({
   return (
     <div className="relative rounded-2xl overflow-hidden border border-[#E4ECF2] mb-6 bg-[#1E252D] shadow-[0px_4px_16px_rgba(30,37,45,0.08)]">
       <div className="relative h-40 sm:h-48 md:h-52 w-full overflow-hidden">
-        {/* Improved aerobatic banner photo */}
+        {/* Optimized WebP aerobatic banner photo */}
         <img
-          src="/assets/aistudio/imass1_7e7d6ad3.jpg"
-          alt="Information + Solutions banner"
+          src="/assets/aistudio/banner-hero.webp"
+          alt=""
+          aria-hidden="true"
+          width={1600}
+          height={420}
+          fetchPriority="high"
+          decoding="async"
           className="w-full h-full object-cover object-center"
           referrerPolicy="no-referrer"
         />

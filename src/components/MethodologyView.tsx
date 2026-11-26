@@ -16,21 +16,18 @@ export const MethodologyView: React.FC = () => {
       <div className="space-y-5">
         {Object.entries(MATRIZ_EVALUACION).map(([nivel, data]) => {
           return (
-            <div
+            <section
               key={nivel}
-              className="bg-white border border-[#E4ECF2] rounded-2xl p-6 sm:p-7 shadow-xs space-y-4 transition-all"
+              className="bg-white border border-[#E4ECF2] rounded-2xl p-6 sm:p-7 shadow-xs space-y-4 transition-colors"
             >
               {/* Header */}
               <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-[#E4ECF2]">
-                <h3 className="text-base sm:text-lg font-light text-[#1E252D] font-['Outfit'] tracking-wide">
+                <h2 className="text-base sm:text-lg font-medium text-[#1E252D] font-['Outfit'] tracking-wide">
                   {nivel}
-                </h3>
+                </h2>
                 <span
-                  className="px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider font-['Outfit']"
-                  style={{
-                    backgroundColor: data.bg_color,
-                    color: data.badge_color
-                  }}
+                  className="text-xs font-semibold font-['Outfit']"
+                  style={{ color: data.text_color }}
                 >
                   Norma Oficial
                 </span>
@@ -38,8 +35,8 @@ export const MethodologyView: React.FC = () => {
 
               {/* Criterion */}
               <div className="p-4 bg-[#F5F8FB] rounded-xl border border-[#E4ECF2] space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block font-['Outfit']">
-                  Criterio Diagnóstico:
+                <span className="text-xs font-semibold text-slate-600 block font-['Outfit']">
+                  Criterio Diagnóstico
                 </span>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
                   {data.criterio}
@@ -47,9 +44,9 @@ export const MethodologyView: React.FC = () => {
               </div>
 
               {/* Recommended Solution */}
-              <div className="p-4 bg-sky-50/40 border border-[#7EBCE6]/40 rounded-xl space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#3B8AC4] block font-['Outfit']">
-                  Solución Inicial Recomendada:
+              <div className="p-4 bg-sky-50/40 border border-[#7EBCE6]/50 rounded-xl space-y-1">
+                <span className="text-xs font-semibold text-[#2C6E9E] block font-['Outfit']">
+                  Solución Inicial Recomendada
                 </span>
                 <p className="text-xs sm:text-sm text-[#1E252D] font-medium leading-relaxed">
                   {data.solucion}
@@ -58,24 +55,24 @@ export const MethodologyView: React.FC = () => {
 
               {/* Action Steps */}
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2 font-['Outfit']">
-                  Pasos de Ejecución Sugeridos:
+                <span className="text-xs font-semibold text-slate-600 block mb-2 font-['Outfit']">
+                  Pasos de Ejecución Sugeridos
                 </span>
                 <ul className="space-y-2">
-                  {data.prioridades_clave.map((p, idx) => (
+                  {data.prioridades_clave.map((paso, idx) => (
                     <li
-                      key={idx}
+                      key={paso}
                       className="text-xs sm:text-sm text-slate-700 flex items-start gap-2.5"
                     >
-                      <span className="w-5 h-5 rounded-md bg-sky-50 text-[#3B8AC4] border border-[#7EBCE6]/40 flex items-center justify-center text-[10px] font-semibold shrink-0 mt-0.5 font-mono">
+                      <span className="w-5 h-5 rounded-md bg-sky-50 text-[#2C6E9E] border border-[#7EBCE6]/50 flex items-center justify-center text-[11px] font-semibold shrink-0 mt-0.5 font-mono tabular-nums">
                         {idx + 1}
                       </span>
-                      <span>{p}</span>
+                      <span>{paso}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-            </div>
+            </section>
           );
         })}
       </div>

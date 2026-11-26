@@ -3,7 +3,15 @@ import { BrandBanner, ContrailCurves } from "./BrandHeader";
 import { GaugeChart } from "./charts/GaugeChart";
 import { RadarChart } from "./charts/RadarChart";
 import { evaluarDiagnostico } from "../lib/scoring";
-import { MATRIZ_EVALUACION } from "../config/constants";
+import { COMPANY_ADDRESS, MATRIZ_EVALUACION } from "../config/constants";
+import {
+  BiToolId,
+  DataConfidenceId,
+  IntegrationLevelId,
+  ReportTimeId,
+  StorageSourceId,
+  UpdateFrequencyId
+} from "../types";
 import {
   ArrowRight,
   Building2,
@@ -26,18 +34,12 @@ const MODEL_CASE_RAW = {
   sector: "Comercio mayorista / minorista",
   colaboradores: "51 a 200",
   fecha: "2026-11-15",
-  almacenamiento_fuentes: [
-    "Planillas de cálculo (Excel, Google Sheets) en carpetas locales o compartidas",
-    "Software de gestión o ERP (Tango, Bejerman, SAP, Odoo, sistema a medida, etc.)",
-    "Sistema de facturación electrónica o comprobantes fiscales"
-  ],
-  integracion_nivel:
-    "2 - Básica: Hay sistemas distintos y cruzamos datos manualmente a fin de mes.",
-  frecuencia_actualizacion: "Semanal",
-  confianza_datos:
-    "Medio: Los datos son confiables pero requieren revisión y limpieza manual previa.",
-  tiempo_reporte: "Medio día, con plantillas prearmadas pero manuales.",
-  herramienta_visualizacion: "Informes nativos del ERP / software contable",
+  storage_source_ids: ["spreadsheets", "erp", "billing"] as StorageSourceId[],
+  integration_level_id: "2" as IntegrationLevelId,
+  update_frequency_id: "weekly" as UpdateFrequencyId,
+  data_confidence_id: "medium" as DataConfidenceId,
+  report_time_id: "half_day" as ReportTimeId,
+  current_bi_tool_id: "erp_native" as BiToolId,
   obstaculos_decision: [
     "Demora en obtener números actualizados.",
     "Dificultad para visualizar tendencias o anomalías a tiempo."
@@ -124,12 +126,12 @@ export const ModelDiagnosticView: React.FC<ModelDiagnosticViewProps> = ({
   const diagnostic = useMemo(
     () =>
       evaluarDiagnostico({
-        storage_sources: MODEL_CASE_RAW.almacenamiento_fuentes,
-        integration_level: MODEL_CASE_RAW.integracion_nivel,
-        update_frequency: MODEL_CASE_RAW.frecuencia_actualizacion,
-        data_confidence: MODEL_CASE_RAW.confianza_datos,
-        report_time: MODEL_CASE_RAW.tiempo_reporte,
-        current_bi_tool: MODEL_CASE_RAW.herramienta_visualizacion
+        storage_source_ids: MODEL_CASE_RAW.storage_source_ids,
+        integration_level_id: MODEL_CASE_RAW.integration_level_id,
+        update_frequency_id: MODEL_CASE_RAW.update_frequency_id,
+        data_confidence_id: MODEL_CASE_RAW.data_confidence_id,
+        report_time_id: MODEL_CASE_RAW.report_time_id,
+        current_bi_tool_id: MODEL_CASE_RAW.current_bi_tool_id
       }),
     []
   );
@@ -176,7 +178,7 @@ ${IMPLEMENTATION_PHASES.map(
 ).join("\n")}
 
 ========================================================================
-I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
+I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
 `;
 
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
@@ -205,7 +207,7 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
         <div
           role="tablist"
           aria-label="Secciones del caso modelo"
-          className="inline-flex items-center gap-1 p-1 bg-white border border-[#E4ECF2] rounded-xl self-start"
+          className="inline-flex items-center gap-1 p-1 bg-white border border-[#E4ECF2] rounded-xl self-start max-w-full overflow-x-auto"
         >
           {(
             [
@@ -218,13 +220,14 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
             return (
               <button
                 key={tab.id}
+                type="button"
                 role="tab"
                 aria-selected={active}
                 onClick={() => setViewFilter(tab.id)}
-                className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer font-['Outfit'] ${
+                className={`px-3.5 py-2 min-h-[40px] sm:min-h-[36px] text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer font-['Outfit'] ${
                   active
-                    ? "bg-[#3B8AC4] text-white"
-                    : "text-slate-600 hover:text-[#1E252D] hover:bg-[#F5F8FB]"
+                    ? "bg-[#2C6E9E] text-white"
+                    : "text-slate-700 hover:text-[#1E252D] hover:bg-[#F5F8FB]"
                 }`}
               >
                 {tab.label}
@@ -233,19 +236,21 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
           })}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
+            type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-[#1E252D] bg-white border border-[#E4ECF2] rounded-xl hover:bg-[#F5F8FB] transition-colors whitespace-nowrap shrink-0 cursor-pointer font-['Outfit']"
+            className="inline-flex items-center gap-2 px-3.5 py-2 min-h-[44px] sm:min-h-[38px] text-xs font-semibold text-[#1E252D] bg-white border border-[#E4ECF2] rounded-xl hover:bg-[#F5F8FB] transition-colors whitespace-nowrap shrink-0 cursor-pointer font-['Outfit']"
           >
-            <Printer className="w-4 h-4 text-slate-500" />
+            <Printer className="w-4 h-4 text-slate-600" aria-hidden="true" />
             <span>Imprimir</span>
           </button>
           <button
+            type="button"
             onClick={handleDownloadModelDocument}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white btn-primary whitespace-nowrap shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] sm:min-h-[38px] text-xs font-semibold text-white btn-primary whitespace-nowrap shrink-0 cursor-pointer"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4" aria-hidden="true" />
             <span>Descargar Caso Modelo (.txt)</span>
           </button>
         </div>
@@ -426,9 +431,9 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
                     </li>
                   ))}
                 </ul>
-                <div className="text-xs text-slate-500 pt-1">
+                <div className="text-xs text-slate-600 pt-1">
                   Foco prioritario declarado:{" "}
-                  <span className="font-semibold text-[#3B8AC4]">
+                  <span className="font-semibold text-[#2C6E9E]">
                     {MODEL_CASE_RAW.proceso_prioritario}
                   </span>
                 </div>
@@ -450,7 +455,7 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
             >
               02. Propuesta de Implementación Derivada del Diagnóstico
             </h3>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-600">
               Plan técnico a medida para {MODEL_CASE_RAW.empresa}
             </span>
           </div>
@@ -460,7 +465,7 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
             <div className="p-6 sm:p-8 space-y-4">
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="space-y-2 max-w-2xl">
-                  <div className="text-xs font-semibold text-[#3B8AC4] font-['Outfit']">
+                  <div className="text-xs font-semibold text-[#2C6E9E] font-['Outfit']">
                     Solución Recomendada — {diagnostic.nivel}
                   </div>
                   <h4 className="text-lg sm:text-xl font-light text-[#1E252D] font-['Outfit'] leading-snug text-balance">
@@ -531,11 +536,11 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
                     className="py-4 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-baseline"
                   >
                     <div className="md:col-span-3 flex items-baseline gap-2">
-                      <span className="text-xs font-semibold text-[#3B8AC4] font-['Outfit']">
+                      <span className="text-xs font-semibold text-[#2C6E9E] font-['Outfit']">
                         {step.fase}
                       </span>
-                      <span aria-hidden="true" className="text-slate-300">·</span>
-                      <span className="text-xs font-mono tabular-nums text-slate-500">
+                      <span aria-hidden="true" className="text-slate-400">·</span>
+                      <span className="text-xs font-mono tabular-nums text-slate-600">
                         {step.plazo}
                       </span>
                     </div>
@@ -553,7 +558,7 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
             {/* Measurable Expected Impact */}
             <div className="p-6 sm:p-8 bg-[#F5F8FB] grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <div className="text-xs text-slate-500 font-['Outfit']">
+                <div className="text-xs text-slate-600 font-['Outfit']">
                   Tiempo de consolidación
                 </div>
                 <div className="text-lg font-medium text-[#1E252D] font-mono tabular-nums mt-1">
@@ -564,10 +569,10 @@ I+S DATA SOLUTIONS — E. Carriego N° 431, La Rioja, Argentina
                 </p>
               </div>
               <div>
-                <div className="text-xs text-slate-500 font-['Outfit']">
+                <div className="text-xs text-slate-600 font-['Outfit']">
                   Frecuencia de decisión
                 </div>
-                <div className="text-lg font-medium text-[#3B8AC4] font-mono tabular-nums mt-1">
+                <div className="text-lg font-medium text-[#2C6E9E] font-mono tabular-nums mt-1">
                   Semanal → Diaria
                 </div>
                 <p className="text-xs text-slate-600 mt-1 leading-snug">

@@ -1,10 +1,23 @@
-import { MatrizNivelInfo } from "../types";
+import {
+  BiToolId,
+  DataConfidenceId,
+  IntegrationLevelId,
+  MatrizNivelInfo,
+  ReportTimeId,
+  StorageSourceId,
+  TypedOption,
+  UpdateFrequencyId
+} from "../types";
 
 export const APP_TITLE = "Diagnóstico de Madurez de Datos & BI";
-export const APP_SUBTITLE = "Descubra el nivel analítico de su organización y su hoja de ruta hacia Business Intelligence";
+export const APP_SUBTITLE =
+  "Descubra el nivel analítico de su organización y su hoja de ruta hacia Business Intelligence";
 export const APP_DESCRIPTION =
   "Acceda a un diagnóstico integral para evaluar cómo su organización captura, integra y aprovecha sus datos, identificar cuellos de botella operativos y recibir un informe inmediato con el plan recomendado para su primer sistema de tableros de control.";
 export const LINKEDIN_PROFILE_URL = "https://www.linkedin.com/in/diegoandrada/";
+export const COMPANY_ADDRESS = "E. Carriego N° 431, La Rioja, Argentina";
+export const COMPANY_ADDRESS_SHORT = "E. Carriego N° 431, La Rioja";
+export const MAX_DECISION_OBSTACLES = 3;
 
 // Opciones Sección 1: Datos Generales
 export const SECTORES = [
@@ -23,51 +36,102 @@ export const RANGOS_COLABORADORES = [
   "Más de 200"
 ];
 
-// Opciones Sección 2: Almacenamiento y Fuentes
-export const FUENTES_ALMACENAMIENTO = [
-  "Planillas de cálculo (Excel, Google Sheets) en carpetas locales o compartidas",
-  "Software de gestión o ERP (Tango, Bejerman, SAP, Odoo, sistema a medida, etc.)",
-  "Sistema de facturación electrónica o comprobantes fiscales",
-  "CRM o plataformas de ventas / e-commerce",
-  "Documentos en papel / cuadernos de registro diario",
-  "Otro"
+// Opciones Sección 2: Almacenamiento y Fuentes (IDs tipados)
+export const STORAGE_SOURCE_OPTIONS: TypedOption<StorageSourceId>[] = [
+  {
+    id: "spreadsheets",
+    label: "Planillas de cálculo (Excel, Google Sheets) en carpetas locales o compartidas"
+  },
+  {
+    id: "erp",
+    label: "Software de gestión o ERP (Tango, Bejerman, SAP, Odoo, sistema a medida, etc.)"
+  },
+  {
+    id: "billing",
+    label: "Sistema de facturación electrónica o comprobantes fiscales"
+  },
+  {
+    id: "crm",
+    label: "CRM o plataformas de ventas / e-commerce"
+  },
+  {
+    id: "paper",
+    label: "Documentos en papel / cuadernos de registro diario"
+  },
+  {
+    id: "other",
+    label: "Otro"
+  }
 ];
 
-export const NIVELES_INTEGRACION = [
-  "1 - Muy fragmentada: Cada área maneja sus propios archivos y no coinciden entre sí.",
-  "2 - Básica: Hay sistemas distintos y cruzamos datos manualmente a fin de mes.",
-  "3 - Parcialmente integrada: Usamos un sistema central pero con muchas planillas auxiliares.",
-  "4 - Integrada: Toda la información clave convive en una única base de datos."
+export const INTEGRATION_LEVEL_OPTIONS: TypedOption<IntegrationLevelId>[] = [
+  {
+    id: "1",
+    label: "1 - Muy fragmentada: Cada área maneja sus propios archivos y no coinciden entre sí."
+  },
+  {
+    id: "2",
+    label: "2 - Básica: Hay sistemas distintos y cruzamos datos manualmente a fin de mes."
+  },
+  {
+    id: "3",
+    label: "3 - Parcialmente integrada: Usamos un sistema central pero con muchas planillas auxiliares."
+  },
+  {
+    id: "4",
+    label: "4 - Integrada: Toda la información clave convive en una única base de datos."
+  }
 ];
 
 // Opciones Sección 3: Recolección, Actualización y Calidad
-export const FRECUENCIAS_ACTUALIZACION = [
-  "Tiempo real / diaria",
-  "Semanal",
-  "Mensual (al cierre administrativo)",
-  "Eventual / solo cuando se necesita un informe puntual"
+export const UPDATE_FREQUENCY_OPTIONS: TypedOption<UpdateFrequencyId>[] = [
+  { id: "realtime", label: "Tiempo real / diaria" },
+  { id: "weekly", label: "Semanal" },
+  { id: "monthly", label: "Mensual (al cierre administrativo)" },
+  { id: "eventual", label: "Eventual / solo cuando se necesita un informe puntual" }
 ];
 
-export const NIVELES_CONFIANZA = [
-  "Bajo: Solemos encontrar duplicados, errores de carga o números que no cierran.",
-  "Medio: Los datos son confiables pero requieren revisión y limpieza manual previa.",
-  "Alto: Los registros son consistentes, estandarizados y auditados periódicamente."
+export const DATA_CONFIDENCE_OPTIONS: TypedOption<DataConfidenceId>[] = [
+  {
+    id: "low",
+    label: "Bajo: Solemos encontrar duplicados, errores de carga o números que no cierran."
+  },
+  {
+    id: "medium",
+    label: "Medio: Los datos son confiables pero requieren revisión y limpieza manual previa."
+  },
+  {
+    id: "high",
+    label: "Alto: Los registros son consistentes, estandarizados y auditados periódicamente."
+  }
 ];
 
 // Opciones Sección 4: Generación de Reportes y Toma de Decisiones
-export const TIEMPOS_REPORTE = [
-  "Horas o días de trabajo manual recopilando y cruzando planillas.",
-  "Medio día, con plantillas prearmadas pero manuales.",
-  "Se obtienen en minutos de forma automática.",
-  "No contamos con reportes periódicos formales."
+export const REPORT_TIME_OPTIONS: TypedOption<ReportTimeId>[] = [
+  {
+    id: "hours_days",
+    label: "Horas o días de trabajo manual recopilando y cruzando planillas."
+  },
+  {
+    id: "half_day",
+    label: "Medio día, con plantillas prearmadas pero manuales."
+  },
+  {
+    id: "minutes",
+    label: "Se obtienen en minutos de forma automática."
+  },
+  {
+    id: "none",
+    label: "No contamos con reportes periódicos formales."
+  }
 ];
 
-export const HERRAMIENTAS_VISUALIZACION = [
-  "Planillas de Excel / tablas dinámicas",
-  "Reportes estáticos en PDF / impresos",
-  "Herramientas de BI (Power BI, Looker Studio, Tableau)",
-  "Informes nativos del ERP / software contable",
-  "Ninguna / sólo consultas directas puntuales"
+export const BI_TOOL_OPTIONS: TypedOption<BiToolId>[] = [
+  { id: "excel", label: "Planillas de Excel / tablas dinámicas" },
+  { id: "static_pdf", label: "Reportes estáticos en PDF / impresos" },
+  { id: "bi_tools", label: "Herramientas de BI (Power BI, Looker Studio, Tableau)" },
+  { id: "erp_native", label: "Informes nativos del ERP / software contable" },
+  { id: "none", label: "Ninguna / sólo consultas directas puntuales" }
 ];
 
 export const OBSTACULOS_DECISION = [
@@ -95,13 +159,23 @@ export const VALORES_ESPERADOS = [
   "Mayor precisión en la planificación comercial y presupuestaria."
 ];
 
-// Matriz Oficial de Evaluación Interna
+export function getOptionLabel<T extends string>(
+  options: TypedOption<T>[],
+  id: T
+): string {
+  return options.find((opt) => opt.id === id)?.label ?? id;
+}
+
+// Matriz Oficial de Evaluación Interna (text_color cumple WCAG 2.1 AA >= 4.5:1 sobre claro)
 export const MATRIZ_EVALUACION: Record<string, MatrizNivelInfo> = {
   "Nivel 1: Inicial / Disperso": {
     badge_color: "#E05D52",
+    text_color: "#B4372D",
     bg_color: "rgba(224, 93, 82, 0.14)",
-    criterio: "Uso intensivo de planillas aisladas, datos en papel, reportes manuales lentos.",
-    solucion: "Normalización y Tablero Base: Limpieza de datos + conexión de planillas a Looker Studio / Power BI con métricas comerciales directas.",
+    criterio:
+      "Uso intensivo de planillas aisladas, datos en papel, reportes manuales lentos.",
+    solucion:
+      "Normalización y Tablero Base: Limpieza de datos + conexión de planillas a Looker Studio / Power BI con métricas comerciales directas.",
     prioridades_clave: [
       "Digitalizar y estandarizar planillas críticas",
       "Eliminar registros en papel o cuadernos",
@@ -111,9 +185,12 @@ export const MATRIZ_EVALUACION: Record<string, MatrizNivelInfo> = {
   },
   "Nivel 2: Operativo / Estructurado": {
     badge_color: "#BFA898",
+    text_color: "#7A5F4B",
     bg_color: "rgba(191, 168, 152, 0.20)",
-    criterio: "Cuentan con ERP o facturación centralizada, pero reportan en Excel manual.",
-    solucion: "Pipeline y Data Modeling: Conexión a la base de datos o exportaciones automáticas + Tablero Ejecutivo de KPIs estratégicos.",
+    criterio:
+      "Cuentan con ERP o facturación centralizada, pero reportan en Excel manual.",
+    solucion:
+      "Pipeline y Data Modeling: Conexión a la base de datos o exportaciones automáticas + Tablero Ejecutivo de KPIs estratégicos.",
     prioridades_clave: [
       "Conectar BI directamente a la base del ERP / facturación",
       "Automatizar el pipeline de extracción y transformación de datos",
@@ -123,9 +200,12 @@ export const MATRIZ_EVALUACION: Record<string, MatrizNivelInfo> = {
   },
   "Nivel 3: Avanzado / Preparado": {
     badge_color: "#3B8AC4",
+    text_color: "#2C6E9E",
     bg_color: "rgba(59, 138, 196, 0.15)",
-    criterio: "Datos integrados y actualizados, buscan autonomía y exploración profunda.",
-    solucion: "BI Integral & Analítica Predictiva: Tableros drill-down multidimensionales, alertas automáticas y preparación para modelos de IA.",
+    criterio:
+      "Datos integrados y actualizados, buscan autonomía y exploración profunda.",
+    solucion:
+      "BI Integral & Analítica Predictiva: Tableros drill-down multidimensionales, alertas automáticas y preparación para modelos de IA.",
     prioridades_clave: [
       "Implementar alertas tempranas de desvíos y anomalías",
       "Modelos de segmentación avanzada de clientes y forecasting de demanda",

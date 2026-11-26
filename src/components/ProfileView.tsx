@@ -1,5 +1,6 @@
 import React from "react";
 import { BrandBanner, ContrailCurves } from "./BrandHeader";
+import { LinkedInIcon } from "./LinkedInIcon";
 import { LINKEDIN_PROFILE_URL } from "../config/constants";
 import {
   ArrowRight,
@@ -150,17 +151,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
               href={LINKEDIN_PROFILE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#0958A8] text-white text-xs font-semibold font-['Outfit'] transition-colors whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#0A66C2] hover:bg-[#0958A8] text-white text-xs font-semibold font-['Outfit'] transition-colors whitespace-nowrap shrink-0"
             >
-              <svg
-                viewBox="0 0 24 24"
-                className="w-3.5 h-3.5 fill-current"
-                aria-hidden="true"
-              >
-                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
-              </svg>
+              <LinkedInIcon className="w-3.5 h-3.5" />
               <span>Ver perfil en LinkedIn</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -270,7 +265,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
                 index > 0 ? "md:border-l md:border-[#E4ECF2] md:pl-6 pt-4 md:pt-0 border-t md:border-t-0 border-[#E4ECF2]" : ""
               }`}
             >
-              <div className="text-xs font-mono tabular-nums text-slate-400">
+              <div className="text-xs font-mono tabular-nums text-slate-600">
                 0{index + 1}
               </div>
               <h4 className="text-sm font-semibold text-[#1E252D] font-['Outfit'] leading-snug">
@@ -348,19 +343,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
               href={LINKEDIN_PROFILE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#0958A8] text-white text-xs font-semibold font-['Outfit'] transition-colors whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-[#0A66C2] hover:bg-[#0958A8] text-white text-xs font-semibold font-['Outfit'] transition-colors whitespace-nowrap shrink-0"
             >
               <span>Ir a LinkedIn</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
             </a>
             {onStartDiagnostic && (
               <button
                 type="button"
                 onClick={onStartDiagnostic}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold font-['Outfit'] transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold font-['Outfit'] transition-colors cursor-pointer whitespace-nowrap shrink-0"
               >
                 <span>Iniciar Diagnóstico</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
             )}
           </div>

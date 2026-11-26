@@ -1,3 +1,26 @@
+export type StorageSourceId =
+  | "spreadsheets"
+  | "erp"
+  | "billing"
+  | "crm"
+  | "paper"
+  | "other";
+
+export type IntegrationLevelId = "1" | "2" | "3" | "4";
+
+export type UpdateFrequencyId = "realtime" | "weekly" | "monthly" | "eventual";
+
+export type DataConfidenceId = "low" | "medium" | "high";
+
+export type ReportTimeId = "hours_days" | "half_day" | "minutes" | "none";
+
+export type BiToolId = "excel" | "static_pdf" | "bi_tools" | "erp_native" | "none";
+
+export interface TypedOption<T extends string> {
+  id: T;
+  label: string;
+}
+
 export interface DimensionScores {
   "Almacenamiento y Fuentes": number;
   "Integración entre Áreas": number;
@@ -8,6 +31,7 @@ export interface DimensionScores {
 
 export interface MatrizNivelInfo {
   badge_color: string;
+  text_color: string;
   bg_color: string;
   criterio: string;
   solucion: string;
@@ -26,12 +50,18 @@ export interface Interview {
   sector_otro?: string;
   colaboradores: string;
   almacenamiento_fuentes: string[];
+  almacenamiento_fuentes_ids?: StorageSourceId[];
   almacenamiento_otro?: string;
   integracion_nivel: string;
+  integracion_nivel_id?: IntegrationLevelId;
   frecuencia_actualizacion: string;
+  frecuencia_actualizacion_id?: UpdateFrequencyId;
   confianza_datos: string;
+  confianza_datos_id?: DataConfidenceId;
   tiempo_reporte: string;
+  tiempo_reporte_id?: ReportTimeId;
   herramienta_visualizacion: string;
+  herramienta_visualizacion_id?: BiToolId;
   obstaculos_decision: string[];
   proceso_prioritario: string;
   proceso_prioritario_otro?: string;
@@ -41,11 +71,17 @@ export interface Interview {
   nivel_madurez: string;
   dimensiones: DimensionScores;
   estado: "Completada" | "En Seguimiento" | "Archivada";
-  created_by_uid?: string;
-  created_by_email?: string;
 }
 
-export type InterviewFormData = Omit<Interview, "id" | "created_at" | "updated_at" | "score_global" | "nivel_madurez" | "dimensiones">;
+export type InterviewFormData = Omit<
+  Interview,
+  "id" | "created_at" | "updated_at" | "score_global" | "nivel_madurez" | "dimensiones"
+>;
+
+export interface SaveInterviewResult {
+  interview: Interview;
+  persisted: boolean;
+}
 
 export interface DiagnosticResult {
   score_global: number;
@@ -53,7 +89,30 @@ export interface DiagnosticResult {
   criterio: string;
   solucion_recomendada: string;
   badge_color: string;
+  text_color: string;
   bg_color: string;
   prioridades_clave: string[];
   dimensiones: DimensionScores;
+}
+
+export interface FormDraft {
+  interviewer: string;
+  intervieweeName: string;
+  role: string;
+  company: string;
+  sector: string;
+  sectorOther: string;
+  employeeCount: string;
+  storageSourceIds: StorageSourceId[];
+  storageOther: string;
+  integrationLevelId: IntegrationLevelId;
+  updateFrequencyId: UpdateFrequencyId;
+  dataConfidenceId: DataConfidenceId;
+  reportTimeId: ReportTimeId;
+  currentBiToolId: BiToolId;
+  decisionObstacles: string[];
+  priorityProcess: string;
+  priorityOther: string;
+  expectedValue: string;
+  consultantNotes: string;
 }

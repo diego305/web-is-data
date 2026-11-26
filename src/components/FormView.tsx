@@ -1,182 +1,298 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   APP_TITLE,
   APP_SUBTITLE,
   APP_DESCRIPTION,
   SECTORES,
   RANGOS_COLABORADORES,
-  FUENTES_ALMACENAMIENTO,
-  NIVELES_INTEGRACION,
-  FRECUENCIAS_ACTUALIZACION,
-  NIVELES_CONFIANZA,
-  TIEMPOS_REPORTE,
-  HERRAMIENTAS_VISUALIZACION,
+  STORAGE_SOURCE_OPTIONS,
+  INTEGRATION_LEVEL_OPTIONS,
+  UPDATE_FREQUENCY_OPTIONS,
+  DATA_CONFIDENCE_OPTIONS,
+  REPORT_TIME_OPTIONS,
+  BI_TOOL_OPTIONS,
   OBSTACULOS_DECISION,
   AREAS_PRIORITARIAS,
-  VALORES_ESPERADOS
+  VALORES_ESPERADOS,
+  MAX_DECISION_OBSTACLES,
+  getOptionLabel
 } from "../config/constants";
-import { Interview, InterviewFormData } from "../types";
-import { saveInterview } from "../lib/storage";
+import {
+  FormDraft,
+  Interview,
+  InterviewFormData,
+  SaveInterviewResult,
+  StorageSourceId
+} from "../types";
+import {
+  clearFormDraft,
+  clearStoredDiagnostics,
+  getSavedInterviews,
+  loadFormDraft,
+  saveFormDraft,
+  saveInterview
+} from "../lib/storage";
 import { ReportView } from "./ReportView";
-import { BrandBanner, PropellerLoader } from "./BrandHeader";
+import { BrandBanner } from "./BrandHeader";
+import { CheckboxOptionGroup, RadioOptionGroup } from "./form/FormOptionGroups";
 import {
   CheckCircle2,
   AlertCircle,
   Clock,
   Plus,
-  ChevronRight
+  ChevronRight,
+  Trash2,
+  ShieldCheck
 } from "lucide-react";
 
-export const FormView: React.FC = () => {
-  const [lastSaved, setLastSaved] = useState<Interview | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface FormViewProps {
+  lastSaved: Interview | null;
+  lastSavedPersisted: boolean;
+  onDiagnosticSaved: (result: SaveInterviewResult) => void;
+  onStartNewDiagnostic: () => void;
+}
 
-  // Form states
-  const [interviewer, setInterviewer] = useState("Consultor BI");
-  const [intervieweeName, setIntervieweeName] = useState("");
-  const [role, setRole] = useState("");
-  const [company, setCompany] = useState("");
-  const [sector, setSector] = useState(SECTORES[0]);
-  const [sectorOther, setSectorOther] = useState("");
-  const [employeeCount, setEmployeeCount] = useState(RANGOS_COLABORADORES[1]); // "11 a 50"
+const DEFAULT_DRAFT: FormDraft = {
+  interviewer: "",
+  intervieweeName: "",
+  role: "",
+  company: "",
+  sector: SECTORES[0],
+  sectorOther: "",
+  employeeCount: RANGOS_COLABORADORES[1],
+  storageSourceIds: ["spreadsheets"],
+  storageOther: "",
+  integrationLevelId: "2",
+  updateFrequencyId: "weekly",
+  dataConfidenceId: "medium",
+  reportTimeId: "hours_days",
+  currentBiToolId: "excel",
+  decisionObstacles: [OBSTACULOS_DECISION[0]],
+  priorityProcess: AREAS_PRIORITARIAS[0],
+  priorityOther: "",
+  expectedValue: VALORES_ESPERADOS[0],
+  consultantNotes: ""
+};
 
-  // Section 2
-  const [storageSources, setStorageSources] = useState<string[]>([
-    "Planillas de cálculo (Excel, Google Sheets) en carpetas locales o compartidas"
-  ]);
-  const [storageOther, setStorageOther] = useState("");
-  const [integrationLevel, setIntegrationLevel] = useState(NIVELES_INTEGRACION[1]);
+const OBSTACLE_OPTIONS = OBSTACULOS_DECISION.map((obs) => ({
+  id: obs,
+  label: obs
+}));
 
-  // Section 3
-  const [updateFrequency, setUpdateFrequency] = useState(FRECUENCIAS_ACTUALIZACION[1]);
-  const [dataConfidence, setDataConfidence] = useState(NIVELES_CONFIANZA[1]);
+const EXPECTED_VALUE_OPTIONS = VALORES_ESPERADOS.map((val) => ({
+  id: val,
+  label: val
+}));
 
-  // Section 4
-  const [reportTime, setReportTime] = useState(TIEMPOS_REPORTE[0]);
-  const [currentBiTool, setCurrentBiTool] = useState(HERRAMIENTAS_VISUALIZACION[0]);
-  const [decisionObstacles, setDecisionObstacles] = useState<string[]>([
-    OBSTACULOS_DECISION[0]
-  ]);
+function buildInitialDraft(): FormDraft {
+  const saved = loadFormDraft();
+  if (!saved) return { ...DEFAULT_DRAFT };
+  return {
+    ...DEFAULT_DRAFT,
+    ...saved,
+    storageSourceIds: Array.isArray(saved.storageSourceIds)
+      ? saved.storageSourceIds
+      : DEFAULT_DRAFT.storageSourceIds,
+    decisionObstacles: Array.isArray(saved.decisionObstacles)
+      ? saved.decisionObstacles.slice(0, MAX_DECISION_OBSTACLES)
+      : DEFAULT_DRAFT.decisionObstacles
+  };
+}
 
-  // Section 5
-  const [priorityProcess, setPriorityProcess] = useState(AREAS_PRIORITARIAS[0]);
-  const [priorityOther, setPriorityOther] = useState("");
-  const [expectedValue, setExpectedValue] = useState(VALORES_ESPERADOS[0]);
-
-  // Consultant notes
-  const [consultantNotes, setConsultantNotes] = useState("");
+export const FormView: React.FC<FormViewProps> = ({
+  lastSaved,
+  lastSavedPersisted,
+  onDiagnosticSaved,
+  onStartNewDiagnostic
+}) => {
+  const [draft, setDraft] = useState<FormDraft>(buildInitialDraft);
   const [errorMessage, setErrorMessage] = useState("");
+  const [savedCount, setSavedCount] = useState<number>(() => getSavedInterviews().length);
+  const [clearFeedback, setClearFeedback] = useState("");
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!lastSaved) {
+      saveFormDraft(draft);
+    }
+  }, [draft, lastSaved]);
+
+  const updateField = <K extends keyof FormDraft>(key: K, value: FormDraft[K]) => {
+    setDraft((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const showValidationError = (msg: string) => {
+    setErrorMessage(msg);
+    requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      errorRef.current?.focus();
+    });
+  };
 
   const handleStartNew = () => {
-    setLastSaved(null);
-    setIntervieweeName("");
-    setRole("");
-    setCompany("");
-    setSector(SECTORES[0]);
-    setSectorOther("");
-    setEmployeeCount(RANGOS_COLABORADORES[1]);
-    setStorageSources([FUENTES_ALMACENAMIENTO[0]]);
-    setStorageOther("");
-    setIntegrationLevel(NIVELES_INTEGRACION[1]);
-    setUpdateFrequency(FRECUENCIAS_ACTUALIZACION[1]);
-    setDataConfidence(NIVELES_CONFIANZA[1]);
-    setReportTime(TIEMPOS_REPORTE[0]);
-    setCurrentBiTool(HERRAMIENTAS_VISUALIZACION[0]);
-    setDecisionObstacles([OBSTACULOS_DECISION[0]]);
-    setPriorityProcess(AREAS_PRIORITARIAS[0]);
-    setPriorityOther("");
-    setExpectedValue(VALORES_ESPERADOS[0]);
-    setConsultantNotes("");
+    clearFormDraft();
+    setDraft({ ...DEFAULT_DRAFT });
     setErrorMessage("");
+    onStartNewDiagnostic();
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleToggleStorage = (fuente: string) => {
-    setStorageSources((prev) =>
-      prev.includes(fuente) ? prev.filter((item) => item !== fuente) : [...prev, fuente]
-    );
+  const handleToggleStorage = (id: StorageSourceId) => {
+    setDraft((prev) => {
+      const exists = prev.storageSourceIds.includes(id);
+      const next = exists
+        ? prev.storageSourceIds.filter((item) => item !== id)
+        : [...prev.storageSourceIds, id];
+      return { ...prev, storageSourceIds: next };
+    });
   };
 
   const handleToggleObstacle = (obs: string) => {
-    setDecisionObstacles((prev) =>
-      prev.includes(obs) ? prev.filter((item) => item !== obs) : [...prev, obs]
-    );
+    setDraft((prev) => {
+      const exists = prev.decisionObstacles.includes(obs);
+      if (exists) {
+        return {
+          ...prev,
+          decisionObstacles: prev.decisionObstacles.filter((item) => item !== obs)
+        };
+      }
+      if (prev.decisionObstacles.length >= MAX_DECISION_OBSTACLES) {
+        return prev;
+      }
+      return {
+        ...prev,
+        decisionObstacles: [...prev.decisionObstacles, obs]
+      };
+    });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleClearLocalHistory = () => {
+    const ok = clearStoredDiagnostics();
+    if (ok) {
+      setSavedCount(0);
+      setClearFeedback("Se eliminaron los diagnósticos almacenados en este navegador.");
+    } else {
+      setClearFeedback("No se pudo limpiar el almacenamiento local en este navegador.");
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
-    if (!intervieweeName.trim()) {
-      setErrorMessage("Por favor, ingrese el nombre del referente de la organización.");
+    if (!draft.intervieweeName.trim()) {
+      showValidationError("Por favor, ingrese el nombre del referente de la organización.");
       return;
     }
-    if (!company.trim()) {
-      setErrorMessage("Por favor, ingrese el nombre de la empresa u organización.");
+    if (!draft.company.trim()) {
+      showValidationError("Por favor, ingrese el nombre de la empresa u organización.");
       return;
     }
-    if (storageSources.length === 0) {
-      setErrorMessage("Debe seleccionar al menos una fuente de almacenamiento de datos.");
+    if (draft.sector === "Otro" && !draft.sectorOther.trim()) {
+      showValidationError("Por favor, especifique el sector o actividad principal.");
       return;
     }
-
-    setIsSubmitting(true);
+    if (draft.storageSourceIds.length === 0) {
+      showValidationError("Debe seleccionar al menos una fuente de almacenamiento de datos.");
+      return;
+    }
+    if (draft.storageSourceIds.includes("other") && !draft.storageOther.trim()) {
+      showValidationError("Por favor, especifique el otro medio de almacenamiento de datos.");
+      return;
+    }
+    if (draft.priorityProcess === "Otro" && !draft.priorityOther.trim()) {
+      showValidationError("Por favor, especifique el área o proceso prioritario.");
+      return;
+    }
 
     const payload: InterviewFormData = {
-      entrevistador: interviewer.trim() || "Consultor BI",
-      responsable_nombre: intervieweeName.trim(),
-      responsable_rol: role.trim(),
-      empresa: company.trim(),
-      sector,
-      sector_otro: sector === "Otro" ? sectorOther.trim() : "",
-      colaboradores: employeeCount,
-      almacenamiento_fuentes: storageSources,
-      almacenamiento_otro: storageSources.includes("Otro") ? storageOther.trim() : "",
-      integracion_nivel: integrationLevel,
-      frecuencia_actualizacion: updateFrequency,
-      confianza_datos: dataConfidence,
-      tiempo_reporte: reportTime,
-      herramienta_visualizacion: currentBiTool,
-      obstaculos_decision: decisionObstacles,
-      proceso_prioritario: priorityProcess,
-      proceso_prioritario_otro: priorityProcess === "Otro" ? priorityOther.trim() : "",
-      valor_esperado: expectedValue,
-      observaciones_consultor: consultantNotes.trim(),
+      entrevistador: draft.interviewer.trim() || "Autodiagnóstico",
+      responsable_nombre: draft.intervieweeName.trim(),
+      responsable_rol: draft.role.trim(),
+      empresa: draft.company.trim(),
+      sector: draft.sector,
+      sector_otro: draft.sector === "Otro" ? draft.sectorOther.trim() : "",
+      colaboradores: draft.employeeCount,
+      almacenamiento_fuentes: draft.storageSourceIds.map((id) =>
+        getOptionLabel(STORAGE_SOURCE_OPTIONS, id)
+      ),
+      almacenamiento_fuentes_ids: draft.storageSourceIds,
+      almacenamiento_otro: draft.storageSourceIds.includes("other")
+        ? draft.storageOther.trim()
+        : "",
+      integracion_nivel: getOptionLabel(INTEGRATION_LEVEL_OPTIONS, draft.integrationLevelId),
+      integracion_nivel_id: draft.integrationLevelId,
+      frecuencia_actualizacion: getOptionLabel(UPDATE_FREQUENCY_OPTIONS, draft.updateFrequencyId),
+      frecuencia_actualizacion_id: draft.updateFrequencyId,
+      confianza_datos: getOptionLabel(DATA_CONFIDENCE_OPTIONS, draft.dataConfidenceId),
+      confianza_datos_id: draft.dataConfidenceId,
+      tiempo_reporte: getOptionLabel(REPORT_TIME_OPTIONS, draft.reportTimeId),
+      tiempo_reporte_id: draft.reportTimeId,
+      herramienta_visualizacion: getOptionLabel(BI_TOOL_OPTIONS, draft.currentBiToolId),
+      herramienta_visualizacion_id: draft.currentBiToolId,
+      obstaculos_decision: draft.decisionObstacles.slice(0, MAX_DECISION_OBSTACLES),
+      proceso_prioritario: draft.priorityProcess,
+      proceso_prioritario_otro:
+        draft.priorityProcess === "Otro" ? draft.priorityOther.trim() : "",
+      valor_esperado: draft.expectedValue,
+      observaciones_consultor: draft.consultantNotes.trim(),
       estado: "Completada"
     };
 
     try {
-      const savedResult = saveInterview(payload);
-      setLastSaved(savedResult);
+      const result = saveInterview(payload);
+      clearFormDraft();
+      setSavedCount(getSavedInterviews().length);
+      onDiagnosticSaved(result);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err: any) {
-      console.error("Error saving diagnostic:", err);
-      setErrorMessage("Ocurrió un error al guardar el diagnóstico. Intente nuevamente.");
-    } finally {
-      setIsSubmitting(false);
+    } catch (err: unknown) {
+      console.error("Error generating diagnostic:", err);
+      showValidationError("Ocurrió un error al generar el diagnóstico. Intente nuevamente.");
     }
   };
 
   if (lastSaved) {
     return (
       <div className="space-y-6">
-        <div className="p-4 bg-sky-50/70 border border-[#7EBCE6]/50 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div
+          role="status"
+          className={`p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xs print:hidden ${
+            lastSavedPersisted
+              ? "bg-sky-50/70 border border-[#7EBCE6]/60"
+              : "bg-amber-50 border border-amber-300"
+          }`}
+        >
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-[#3B8AC4] shrink-0" />
+            {lastSavedPersisted ? (
+              <CheckCircle2 className="w-5 h-5 text-[#2C6E9E] shrink-0" aria-hidden="true" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-amber-700 shrink-0" aria-hidden="true" />
+            )}
             <div>
-              <div className="text-xs sm:text-sm font-semibold text-[#1E252D] flex items-center gap-2 font-['Outfit']">
-                <span>Diagnóstico de Madurez completado con éxito</span>
+              <div className="text-xs sm:text-sm font-semibold text-[#1E252D] font-['Outfit']">
+                {lastSavedPersisted
+                  ? "Diagnóstico de Madurez completado con éxito"
+                  : "Informe generado sin guardado local en este navegador"}
               </div>
-              <div className="text-xs text-slate-600 mt-0.5 font-['Inter']">
-                El informe de <strong>{lastSaved.empresa}</strong> ya está disponible y guardado.
+              <div className="text-xs text-slate-700 mt-0.5 font-['Inter']">
+                {lastSavedPersisted ? (
+                  <>
+                    El informe de <strong>{lastSaved.empresa}</strong> ya está disponible y guardado en este navegador.
+                  </>
+                ) : (
+                  <>
+                    El informe de <strong>{lastSaved.empresa}</strong> está listo, pero el navegador bloqueó el guardado local. Descargalo en .txt para conservarlo.
+                  </>
+                )}
               </div>
             </div>
           </div>
           <button
+            type="button"
             onClick={handleStartNew}
-            className="inline-flex items-center gap-2 px-3.5 py-2 btn-primary text-xs cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] btn-primary text-xs cursor-pointer whitespace-nowrap shrink-0"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             Nuevo Diagnóstico
           </button>
         </div>
@@ -188,7 +304,7 @@ export const FormView: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-12 font-['Inter']">
-      {/* Brand Hero Banner using the user-provided aerobatic sky photo */}
+      {/* Brand Hero Banner */}
       <BrandBanner
         title={APP_TITLE}
         subtitle={APP_SUBTITLE}
@@ -197,136 +313,180 @@ export const FormView: React.FC = () => {
 
       {/* Description & Value Promise card */}
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4">
-        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+        <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
           {APP_DESCRIPTION}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
           <div className="p-3 rounded-xl bg-[#F5F8FB] border border-[#E4ECF2]">
-            <div className="text-[11px] font-semibold text-[#3B8AC4] font-['Outfit']">01 · Evalúe 5 dimensiones</div>
-            <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+            <div className="text-xs font-semibold text-[#2C6E9E] font-['Outfit']">
+              01 · Evalúe 5 dimensiones
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5 leading-snug">
               Fuentes, integración, frecuencia, calidad y reportabilidad actual.
             </p>
           </div>
           <div className="p-3 rounded-xl bg-[#F5F8FB] border border-[#E4ECF2]">
-            <div className="text-[11px] font-semibold text-[#3B8AC4] font-['Outfit']">02 · Conozca su nivel BI</div>
-            <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+            <div className="text-xs font-semibold text-[#2C6E9E] font-['Outfit']">
+              02 · Conozca su nivel BI
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5 leading-snug">
               Score ponderado (0 a 100) y radar visual de madurez de datos.
             </p>
           </div>
           <div className="p-3 rounded-xl bg-[#F5F8FB] border border-[#E4ECF2]">
-            <div className="text-[11px] font-semibold text-[#3B8AC4] font-['Outfit']">03 · Obtenga su plan</div>
-            <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+            <div className="text-xs font-semibold text-[#2C6E9E] font-['Outfit']">
+              03 · Obtenga su plan
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5 leading-snug">
               Solución inicial recomendada y pasos clave para su primer tablero.
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#3B8AC4] pt-1 font-['Outfit']">
-          <Clock className="w-3.5 h-3.5 text-[#3B8AC4]" />
+        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#2C6E9E] pt-1 font-['Outfit']">
+          <Clock className="w-3.5 h-3.5 text-[#2C6E9E]" aria-hidden="true" />
           <span>Tiempo estimado: 5 a 7 minutos</span>
-          <span className="text-slate-300" aria-hidden="true">·</span>
-          <span className="text-slate-500 font-normal font-['Inter']">Resultado inmediato con informe descargable</span>
+          <span className="text-slate-400" aria-hidden="true">·</span>
+          <span className="text-slate-600 font-normal font-['Inter']">
+            Resultado inmediato con informe descargable
+          </span>
         </div>
       </div>
 
       {errorMessage && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs sm:text-sm font-medium flex items-center gap-2.5 shadow-2xs font-['Inter']">
-          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+        <div
+          ref={errorRef}
+          tabIndex={-1}
+          role="alert"
+          aria-live="assertive"
+          className="p-4 bg-rose-50 border border-rose-300 rounded-xl text-rose-900 text-xs sm:text-sm font-medium flex items-center gap-2.5 shadow-2xs font-['Inter']"
+        >
+          <AlertCircle className="w-4 h-4 text-rose-700 shrink-0" aria-hidden="true" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Main Interactive Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Diagnostic Consultant Metadata */}
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        {/* Diagnostic Context Metadata */}
         <div className="bg-white p-5 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-3">
-          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-['Outfit']">
+          <div className="text-xs font-semibold text-slate-600 font-['Outfit']">
             Datos del Diagnóstico
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']">
-                Consultor / Responsable del diagnóstico:
+              <label
+                htmlFor="diagnostic-evaluator"
+                className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']"
+              >
+                Evaluador o consultor (opcional)
               </label>
               <input
+                id="diagnostic-evaluator"
                 type="text"
-                value={interviewer}
-                onChange={(e) => setInterviewer(e.target.value)}
-                placeholder="Ej: Diego Martínez"
-                className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white transition-all"
+                value={draft.interviewer}
+                onChange={(e) => updateField("interviewer", e.target.value)}
+                placeholder="Dejar vacío para autodiagnóstico"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white transition-colors"
               />
             </div>
-            <div className="text-xs text-slate-500 italic sm:pt-4">
-              <span>El informe ejecutivo de madurez y la hoja de ruta se generarán automáticamente al finalizar.</span>
+            <div className="text-xs text-slate-600 sm:pt-4">
+              El informe ejecutivo de madurez y la hoja de ruta se generarán automáticamente al finalizar.
             </div>
           </div>
         </div>
 
-        {/* ------------------------------------------------------------- */}
         {/* SECCIÓN 1: DATOS GENERALES */}
-        {/* ------------------------------------------------------------- */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4">
-          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between">
+        <section
+          aria-labelledby="section-1-title"
+          className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4"
+        >
+          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-light text-[#1E252D] tracking-wide font-['Outfit']">
+              <h2
+                id="section-1-title"
+                className="text-sm font-medium text-[#1E252D] tracking-wide font-['Outfit']"
+              >
                 01. Datos Generales de la Organización
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Información básica de la empresa y del referente que responde.
               </p>
             </div>
-            <span className="text-xs font-mono tabular-nums text-slate-400">1 / 5</span>
+            <span className="text-xs font-mono tabular-nums text-slate-600 shrink-0">
+              1 / 5
+            </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']">
-                Nombre y Apellido del responsable <span className="text-[#3B8AC4]">*</span>
+              <label
+                htmlFor="interviewee-name"
+                className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']"
+              >
+                Nombre y Apellido del responsable{" "}
+                <span className="text-[#2C6E9E]" aria-hidden="true">*</span>
               </label>
               <input
+                id="interviewee-name"
                 type="text"
-                value={intervieweeName}
-                onChange={(e) => setIntervieweeName(e.target.value)}
+                value={draft.intervieweeName}
+                onChange={(e) => updateField("intervieweeName", e.target.value)}
                 placeholder="Ej: Juan Pérez"
                 required
-                className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white transition-all"
+                aria-required="true"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']">
+              <label
+                htmlFor="interviewee-role"
+                className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']"
+              >
                 Cargo / Rol en la organización
               </label>
               <input
+                id="interviewee-role"
                 type="text"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
+                value={draft.role}
+                onChange={(e) => updateField("role", e.target.value)}
                 placeholder="Ej: Gerente de Operaciones / Dueño"
-                className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white transition-all"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']">
-                Nombre de la empresa u organización <span className="text-[#3B8AC4]">*</span>
+              <label
+                htmlFor="company-name"
+                className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']"
+              >
+                Nombre de la empresa u organización{" "}
+                <span className="text-[#2C6E9E]" aria-hidden="true">*</span>
               </label>
               <input
+                id="company-name"
                 type="text"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
+                value={draft.company}
+                onChange={(e) => updateField("company", e.target.value)}
                 placeholder="Ej: Bodegas Andinas S.A."
                 required
-                className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white transition-all"
+                aria-required="true"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']">
+              <label
+                htmlFor="employee-count"
+                className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']"
+              >
                 Cantidad aproximada de colaboradores
               </label>
               <select
-                value={employeeCount}
-                onChange={(e) => setEmployeeCount(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white cursor-pointer transition-all"
+                id="employee-count"
+                value={draft.employeeCount}
+                onChange={(e) => updateField("employeeCount", e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white cursor-pointer transition-colors"
               >
                 {RANGOS_COLABORADORES.map((r) => (
                   <option key={r} value={r}>
@@ -338,13 +498,17 @@ export const FormView: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']">
+            <label
+              htmlFor="company-sector"
+              className="block text-xs font-medium text-[#1E252D] mb-1 font-['Outfit']"
+            >
               Sector o actividad principal
             </label>
             <select
-              value={sector}
-              onChange={(e) => setSector(e.target.value)}
-              className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white cursor-pointer transition-all"
+              id="company-sector"
+              value={draft.sector}
+              onChange={(e) => updateField("sector", e.target.value)}
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white cursor-pointer transition-colors"
             >
               {SECTORES.map((s) => (
                 <option key={s} value={s}>
@@ -352,329 +516,216 @@ export const FormView: React.FC = () => {
                 </option>
               ))}
             </select>
-            {sector === "Otro" && (
+            {draft.sector === "Otro" && (
               <div className="mt-2">
+                <label htmlFor="company-sector-other" className="sr-only">
+                  Especifique el sector o actividad principal
+                </label>
                 <input
+                  id="company-sector-other"
                   type="text"
-                  value={sectorOther}
-                  onChange={(e) => setSectorOther(e.target.value)}
+                  value={draft.sectorOther}
+                  onChange={(e) => updateField("sectorOther", e.target.value)}
+                  required
+                  aria-required="true"
                   placeholder="Especifique el sector o actividad (ej: Fintech, Energía solar...)"
-                  className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#7EBCE6] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#3B8AC4] bg-sky-50/30"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#3B8AC4] rounded-xl bg-sky-50/30"
                 />
               </div>
             )}
           </div>
-        </div>
+        </section>
 
-        {/* ------------------------------------------------------------- */}
-        {/* SECCIÓN 2: ALMACENAMIENTO Y FUENTES DE INFORMACIÓN */}
-        {/* ------------------------------------------------------------- */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4">
-          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between">
+        {/* SECCIÓN 2: ALMACENAMIENTO Y FUENTES */}
+        <section
+          aria-labelledby="section-2-title"
+          className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-5"
+        >
+          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-light text-[#1E252D] tracking-wide font-['Outfit']">
+              <h2
+                id="section-2-title"
+                className="text-sm font-medium text-[#1E252D] tracking-wide font-['Outfit']"
+              >
                 02. Almacenamiento y Fuentes de Información
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Identificación de repositorios, sistemas transaccionales e integración actual.
               </p>
             </div>
-            <span className="text-xs font-mono tabular-nums text-slate-400">2 / 5</span>
+            <span className="text-xs font-mono tabular-nums text-slate-600 shrink-0">
+              2 / 5
+            </span>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#1E252D] mb-1.5 font-['Outfit']">
-              ¿Dónde se registra y almacena hoy la mayor parte de la información operativa y comercial?
-              <span className="block text-[11px] font-normal text-slate-500 font-['Inter']">(Seleccione todas las que apliquen)</span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-              {FUENTES_ALMACENAMIENTO.map((fuente) => {
-                const checked = storageSources.includes(fuente);
-                return (
-                  <label
-                    key={fuente}
-                    className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                      checked
-                        ? "bg-sky-50/60 border-[#7EBCE6] text-[#1E252D] font-medium"
-                        : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => handleToggleStorage(fuente)}
-                      className="mt-0.5 rounded-sm border-[#E4ECF2] text-[#3B8AC4] focus:ring-[#7EBCE6]"
-                    />
-                    <span>{fuente}</span>
-                  </label>
-                );
-              })}
-            </div>
-            {storageSources.includes("Otro") && (
+            <CheckboxOptionGroup
+              legend="¿Dónde se registra y almacena hoy la mayor parte de la información operativa y comercial?"
+              hint="(Seleccione todas las que apliquen)"
+              options={STORAGE_SOURCE_OPTIONS}
+              selected={draft.storageSourceIds}
+              onToggle={handleToggleStorage}
+              columns={2}
+            />
+            {draft.storageSourceIds.includes("other") && (
               <div className="mt-2.5">
+                <label htmlFor="storage-other" className="sr-only">
+                  Especifique otro medio de almacenamiento
+                </label>
                 <input
+                  id="storage-other"
                   type="text"
-                  value={storageOther}
-                  onChange={(e) => setStorageOther(e.target.value)}
-                  placeholder="Especifique otro medio de almacenamiento (ej: Access, Notion, etc.)"
-                  className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#7EBCE6] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#3B8AC4] bg-sky-50/30"
+                  value={draft.storageOther}
+                  onChange={(e) => updateField("storageOther", e.target.value)}
+                  required
+                  aria-required="true"
+                  placeholder="Especifique otro medio de almacenamiento (ej: PostgreSQL, Notion, Access...)"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#3B8AC4] rounded-xl bg-sky-50/30"
                 />
               </div>
             )}
           </div>
 
           <div className="pt-2">
-            <label className="block text-xs font-medium text-[#1E252D] mb-2 font-['Outfit']">
-              ¿Cómo calificaría la integración entre sus distintas áreas (ventas, compras, administración, operaciones)?
-            </label>
-            <div className="space-y-2">
-              {NIVELES_INTEGRACION.map((nivel) => {
-                const checked = integrationLevel === nivel;
-                return (
-                  <label
-                    key={nivel}
-                    className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                      checked
-                        ? "bg-sky-50/60 border-[#7EBCE6] text-[#1E252D] font-medium"
-                        : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="integrationLevel"
-                      checked={checked}
-                      onChange={() => setIntegrationLevel(nivel)}
-                      className="mt-0.5 text-[#3B8AC4] focus:ring-[#7EBCE6]"
-                    />
-                    <span>{nivel}</span>
-                  </label>
-                );
-              })}
-            </div>
+            <RadioOptionGroup
+              legend="¿Cómo calificaría la integración entre sus distintas áreas (ventas, compras, administración, operaciones)?"
+              name="integrationLevel"
+              options={INTEGRATION_LEVEL_OPTIONS}
+              value={draft.integrationLevelId}
+              onChange={(val) => updateField("integrationLevelId", val)}
+            />
           </div>
-        </div>
+        </section>
 
-        {/* ------------------------------------------------------------- */}
         {/* SECCIÓN 3: RECOLECCIÓN, ACTUALIZACIÓN Y CALIDAD */}
-        {/* ------------------------------------------------------------- */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4">
-          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between">
+        <section
+          aria-labelledby="section-3-title"
+          className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4"
+        >
+          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-light text-[#1E252D] tracking-wide font-['Outfit']">
+              <h2
+                id="section-3-title"
+                className="text-sm font-medium text-[#1E252D] tracking-wide font-['Outfit']"
+              >
                 03. Recolección, Actualización y Calidad
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Dinámica de refresco y confiabilidad percibida de la información.
               </p>
             </div>
-            <span className="text-xs font-mono tabular-nums text-slate-400">3 / 5</span>
+            <span className="text-xs font-mono tabular-nums text-slate-600 shrink-0">
+              3 / 5
+            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-2 font-['Outfit']">
-                ¿Con qué frecuencia se actualizan los datos clave del negocio?
-              </label>
-              <div className="space-y-2">
-                {FRECUENCIAS_ACTUALIZACION.map((freq) => {
-                  const checked = updateFrequency === freq;
-                  return (
-                    <label
-                      key={freq}
-                      className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                        checked
-                          ? "bg-sky-50/60 border-[#7EBCE6] text-[#1E252D] font-medium"
-                          : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="updateFrequency"
-                        checked={checked}
-                        onChange={() => setUpdateFrequency(freq)}
-                        className="text-[#3B8AC4] focus:ring-[#7EBCE6]"
-                      />
-                      <span>{freq}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+            <RadioOptionGroup
+              legend="¿Con qué frecuencia se actualizan los datos clave del negocio?"
+              name="updateFrequency"
+              options={UPDATE_FREQUENCY_OPTIONS}
+              value={draft.updateFrequencyId}
+              onChange={(val) => updateField("updateFrequencyId", val)}
+            />
 
-            <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-2 font-['Outfit']">
-                ¿Qué nivel de confianza tiene en la consistencia de sus datos actuales?
-              </label>
-              <div className="space-y-2">
-                {NIVELES_CONFIANZA.map((conf) => {
-                  const checked = dataConfidence === conf;
-                  return (
-                    <label
-                      key={conf}
-                      className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                        checked
-                          ? "bg-sky-50/60 border-[#7EBCE6] text-[#1E252D] font-medium"
-                          : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="dataConfidence"
-                        checked={checked}
-                        onChange={() => setDataConfidence(conf)}
-                        className="mt-0.5 text-[#3B8AC4] focus:ring-[#7EBCE6]"
-                      />
-                      <span>{conf}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+            <RadioOptionGroup
+              legend="¿Qué nivel de confianza tiene en la consistencia de sus datos actuales?"
+              name="dataConfidence"
+              options={DATA_CONFIDENCE_OPTIONS}
+              value={draft.dataConfidenceId}
+              onChange={(val) => updateField("dataConfidenceId", val)}
+            />
           </div>
-        </div>
+        </section>
 
-        {/* ------------------------------------------------------------- */}
         {/* SECCIÓN 4: GENERACIÓN DE REPORTES Y TOMA DE DECISIONES */}
-        {/* ------------------------------------------------------------- */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4">
-          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between">
+        <section
+          aria-labelledby="section-4-title"
+          className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-5"
+        >
+          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-light text-[#1E252D] tracking-wide font-['Outfit']">
+              <h2
+                id="section-4-title"
+                className="text-sm font-medium text-[#1E252D] tracking-wide font-['Outfit']"
+              >
                 04. Generación de Reportes y Toma de Decisiones
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Tiempos de preparación, herramientas y principales fricciones directivas.
               </p>
             </div>
-            <span className="text-xs font-mono tabular-nums text-slate-400">4 / 5</span>
+            <span className="text-xs font-mono tabular-nums text-slate-600 shrink-0">
+              4 / 5
+            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-2 font-['Outfit']">
-                ¿Cuánto tiempo le toma a su equipo consolidar los reportes periódicos?
-              </label>
-              <div className="space-y-2">
-                {TIEMPOS_REPORTE.map((t) => {
-                  const checked = reportTime === t;
-                  return (
-                    <label
-                      key={t}
-                      className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                        checked
-                          ? "bg-sky-50/60 border-[#7EBCE6] text-[#1E252D] font-medium"
-                          : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="reportTime"
-                        checked={checked}
-                        onChange={() => setReportTime(t)}
-                        className="mt-0.5 text-[#3B8AC4] focus:ring-[#7EBCE6]"
-                      />
-                      <span>{t}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+            <RadioOptionGroup
+              legend="¿Cuánto tiempo le toma a su equipo consolidar los reportes periódicos?"
+              name="reportTime"
+              options={REPORT_TIME_OPTIONS}
+              value={draft.reportTimeId}
+              onChange={(val) => updateField("reportTimeId", val)}
+            />
 
-            <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-2 font-['Outfit']">
-                ¿Qué herramienta utilizan actualmente para visualizar los indicadores?
-              </label>
-              <div className="space-y-2">
-                {HERRAMIENTAS_VISUALIZACION.map((h) => {
-                  const checked = currentBiTool === h;
-                  return (
-                    <label
-                      key={h}
-                      className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                        checked
-                          ? "bg-sky-50/60 border-[#7EBCE6] text-[#1E252D] font-medium"
-                          : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="currentBiTool"
-                        checked={checked}
-                        onChange={() => setCurrentBiTool(h)}
-                        className="mt-0.5 text-[#3B8AC4] focus:ring-[#7EBCE6]"
-                      />
-                      <span>{h}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+            <RadioOptionGroup
+              legend="¿Qué herramienta utilizan actualmente para visualizar los indicadores?"
+              name="currentBiTool"
+              options={BI_TOOL_OPTIONS}
+              value={draft.currentBiToolId}
+              onChange={(val) => updateField("currentBiToolId", val)}
+            />
           </div>
 
           <div className="pt-2">
-            <label className="block text-xs font-medium text-[#1E252D] mb-1.5 font-['Outfit']">
-              ¿Cuáles son los principales obstáculos que enfrenta la dirección al tomar decisiones?
-              <span className="block text-[11px] font-normal text-slate-500 font-['Inter']">(Marque hasta 3)</span>
-            </label>
-            <div className="space-y-2 pt-1">
-              {OBSTACULOS_DECISION.map((obs) => {
-                const checked = decisionObstacles.includes(obs);
-                return (
-                  <label
-                    key={obs}
-                    className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                      checked
-                        ? "bg-[#F5F8FB] border-[#BFA898] text-[#1E252D] font-medium"
-                        : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => handleToggleObstacle(obs)}
-                      className="mt-0.5 text-[#BFA898] focus:ring-[#BFA898]"
-                    />
-                    <span>{obs}</span>
-                  </label>
-                );
-              })}
-            </div>
-            {decisionObstacles.length > 3 && (
-              <div className="mt-2 p-2.5 bg-[#F5F8FB] border border-[#BFA898]/40 rounded-xl text-slate-700 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-[#BFA898] shrink-0" />
-                <span>
-                  Ha marcado {decisionObstacles.length} obstáculos. Le sugerimos priorizar los 3 más críticos para un diagnóstico más certero.
-                </span>
-              </div>
-            )}
+            <CheckboxOptionGroup
+              legend="¿Cuáles son los principales obstáculos que enfrenta la dirección al tomar decisiones?"
+              hint={`Seleccione hasta ${MAX_DECISION_OBSTACLES} prioridades (${draft.decisionObstacles.length}/${MAX_DECISION_OBSTACLES} seleccionados)`}
+              options={OBSTACLE_OPTIONS}
+              selected={draft.decisionObstacles}
+              onToggle={handleToggleObstacle}
+              accent="bronze"
+              maxSelections={MAX_DECISION_OBSTACLES}
+            />
           </div>
-        </div>
+        </section>
 
-        {/* ------------------------------------------------------------- */}
         {/* SECCIÓN 5: PRIORIDADES Y EXPECTATIVAS */}
-        {/* ------------------------------------------------------------- */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4">
-          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between">
+        <section
+          aria-labelledby="section-5-title"
+          className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-4"
+        >
+          <div className="border-b border-[#E4ECF2] pb-3 flex items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-light text-[#1E252D] tracking-wide font-['Outfit']">
+              <h2
+                id="section-5-title"
+                className="text-sm font-medium text-[#1E252D] tracking-wide font-['Outfit']"
+              >
                 05. Prioridades y Expectativas
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 mt-0.5">
                 Foco de negocio deseado y retorno esperado de la iniciativa de BI.
               </p>
             </div>
-            <span className="text-xs font-mono tabular-nums text-slate-400">5 / 5</span>
+            <span className="text-xs font-mono tabular-nums text-slate-600 shrink-0">
+              5 / 5
+            </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-1.5 font-['Outfit']">
+              <label
+                htmlFor="priority-process"
+                className="block text-xs font-medium text-[#1E252D] mb-1.5 font-['Outfit']"
+              >
                 Área o proceso prioritario para implementar su primer tablero
               </label>
               <select
-                value={priorityProcess}
-                onChange={(e) => setPriorityProcess(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white cursor-pointer transition-all"
+                id="priority-process"
+                value={draft.priorityProcess}
+                onChange={(e) => updateField("priorityProcess", e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white cursor-pointer transition-colors"
               >
                 {AREAS_PRIORITARIAS.map((a) => (
                   <option key={a} value={a}>
@@ -682,65 +733,53 @@ export const FormView: React.FC = () => {
                   </option>
                 ))}
               </select>
-              {priorityProcess === "Otro" && (
+              {draft.priorityProcess === "Otro" && (
                 <div className="mt-2">
+                  <label htmlFor="priority-process-other" className="sr-only">
+                    Especifique el área o proceso prioritario
+                  </label>
                   <input
+                    id="priority-process-other"
                     type="text"
-                    value={priorityOther}
-                    onChange={(e) => setPriorityOther(e.target.value)}
+                    value={draft.priorityOther}
+                    onChange={(e) => updateField("priorityOther", e.target.value)}
+                    required
+                    aria-required="true"
                     placeholder="Especifique el área o proceso prioritario (ej: Logística de frío, mermas...)"
-                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-[#7EBCE6] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#3B8AC4] bg-sky-50/30"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#3B8AC4] rounded-xl bg-sky-50/30"
                   />
                 </div>
               )}
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-[#1E252D] mb-1.5 font-['Outfit']">
-                Valor principal esperado de la implementación de BI
-              </label>
-              <div className="space-y-2">
-                {VALORES_ESPERADOS.map((val) => {
-                  const checked = expectedValue === val;
-                  return (
-                    <label
-                      key={val}
-                      className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
-                        checked
-                          ? "bg-sky-50/60 border-[#7EBCE6] text-[#1E252D] font-medium"
-                          : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="expectedValue"
-                        checked={checked}
-                        onChange={() => setExpectedValue(val)}
-                        className="mt-0.5 text-[#3B8AC4] focus:ring-[#7EBCE6]"
-                      />
-                      <span>{val}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+            <RadioOptionGroup
+              legend="Valor principal esperado de la implementación de BI"
+              name="expectedValue"
+              options={EXPECTED_VALUE_OPTIONS}
+              value={draft.expectedValue}
+              onChange={(val) => updateField("expectedValue", val)}
+            />
           </div>
-        </div>
+        </section>
 
-        {/* NOTAS ADICIONALES DEL CONSULTOR */}
+        {/* OBSERVACIONES ADICIONALES */}
         <div className="bg-white p-6 rounded-2xl border border-[#E4ECF2] shadow-xs space-y-2">
-          <label className="block text-sm font-medium text-[#1E252D] font-['Outfit']">
-            Notas y Observaciones del Consultor
+          <label
+            htmlFor="additional-notes"
+            className="block text-sm font-medium text-[#1E252D] font-['Outfit']"
+          >
+            Observaciones o contexto adicional (opcional)
           </label>
-          <p className="text-xs text-slate-500 font-['Inter']">
-            Comentarios cualitativos, tono del cliente, sistemas específicos mencionados o próximos pasos:
+          <p className="text-xs text-slate-600 font-['Inter']">
+            Sistemas específicos en uso, urgencias comerciales, cambios previstos o comentarios útiles para el diagnóstico:
           </p>
           <textarea
-            value={consultantNotes}
-            onChange={(e) => setConsultantNotes(e.target.value)}
+            id="additional-notes"
+            value={draft.consultantNotes}
+            onChange={(e) => updateField("consultantNotes", e.target.value)}
             rows={3}
-            placeholder="Ej: El cliente planea cambiar de ERP el año próximo. Tienen urgencia en el módulo de ventas y cobranzas. Muy receptivo a tableros en la nube."
-            className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#7EBCE6] focus:border-[#3B8AC4] bg-white transition-all font-['Inter']"
+            placeholder="Ej: Planeamos cambiar de ERP el año próximo. Tenemos urgencia en el tablero de ventas y cobranzas."
+            className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-[#E4ECF2] rounded-xl focus:border-[#2C6E9E] bg-white transition-colors font-['Inter']"
           />
         </div>
 
@@ -748,23 +787,38 @@ export const FormView: React.FC = () => {
         <div>
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3.5 px-6 rounded-xl text-sm font-semibold text-white btn-primary flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="w-full py-3.5 px-6 min-h-[48px] rounded-xl text-sm font-semibold text-white btn-primary flex items-center justify-center gap-2 cursor-pointer"
           >
-            {isSubmitting ? (
-              <PropellerLoader
-                size={20}
-                text="Guardando diagnóstico..."
-                className="text-white"
-              />
-            ) : (
-              <>
-                <span>Finalizar y Obtener Diagnóstico de Madurez</span>
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
+            <span>Finalizar y Obtener Diagnóstico de Madurez</span>
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
+
+        {/* Privacy Notice & Local Clear Control */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white border border-[#E4ECF2] text-xs text-slate-600">
+          <div className="flex items-start sm:items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#2C6E9E] shrink-0 mt-0.5 sm:mt-0" aria-hidden="true" />
+            <span>
+              Tus respuestas se procesan localmente en este navegador y no se envían a servidores externos.
+            </span>
+          </div>
+          {savedCount > 0 && (
+            <button
+              type="button"
+              onClick={handleClearLocalHistory}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] text-xs font-medium text-slate-700 hover:text-rose-800 hover:bg-rose-50 border border-[#E4ECF2] rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0 self-start sm:self-auto"
+            >
+              <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Borrar historial local ({savedCount})</span>
+            </button>
+          )}
+        </div>
+
+        {clearFeedback && (
+          <p role="status" className="text-xs text-slate-600 px-1">
+            {clearFeedback}
+          </p>
+        )}
       </form>
     </div>
   );
