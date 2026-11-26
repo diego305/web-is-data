@@ -4,6 +4,7 @@ import { FormView } from "./components/FormView";
 import { ModelDiagnosticView } from "./components/ModelDiagnosticView";
 import { ProposalView } from "./components/ProposalView";
 import { MethodologyView } from "./components/MethodologyView";
+import { ProfileView } from "./components/ProfileView";
 
 export function App() {
   const [currentModule, setCurrentModule] = useState<NavModule>("form");
@@ -25,6 +26,9 @@ export function App() {
           )}
           {currentModule === "proposal" && <ProposalView />}
           {currentModule === "methodology" && <MethodologyView />}
+          {currentModule === "profile" && (
+            <ProfileView onStartDiagnostic={() => setCurrentModule("form")} />
+          )}
         </main>
       </div>
     </div>

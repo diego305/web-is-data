@@ -4,13 +4,16 @@ import {
   FileCheck2,
   Briefcase,
   HelpCircle,
+  UserRound,
   Menu,
   X,
-  ChevronRight
+  ChevronRight,
+  ExternalLink
 } from "lucide-react";
 import { AppSquircleIcon } from "./BrandHeader";
+import { LINKEDIN_PROFILE_URL } from "../config/constants";
 
-export type NavModule = "form" | "model" | "proposal" | "methodology";
+export type NavModule = "form" | "model" | "proposal" | "methodology" | "profile";
 
 interface NavigationProps {
   currentModule: NavModule;
@@ -25,6 +28,11 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const menuItems: { id: NavModule; label: string; icon: React.ReactNode }[] = [
     {
+      id: "proposal",
+      label: "Propuesta de Trabajo",
+      icon: <Briefcase className="w-4 h-4 text-[#BFA898]" />
+    },
+    {
       id: "form",
       label: "Nuevo Diagnóstico",
       icon: <FileText className="w-4 h-4 text-[#3B8AC4]" />
@@ -35,14 +43,14 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: <FileCheck2 className="w-4 h-4 text-[#3B8AC4]" />
     },
     {
-      id: "proposal",
-      label: "Propuesta de Trabajo",
-      icon: <Briefcase className="w-4 h-4 text-[#BFA898]" />
-    },
-    {
       id: "methodology",
       label: "Matriz & Metodología",
       icon: <HelpCircle className="w-4 h-4 text-slate-500" />
+    },
+    {
+      id: "profile",
+      label: "Perfil Profesional",
+      icon: <UserRound className="w-4 h-4 text-[#3B8AC4]" />
     }
   ];
 
@@ -133,11 +141,36 @@ export const Navigation: React.FC<NavigationProps> = ({
                 </button>
               );
             })}
+
+            <div className="pt-2">
+              <a
+                href={LINKEDIN_PROFILE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white border border-[#E4ECF2] hover:border-[#0A66C2]/50 hover:bg-[#F0F7FF] text-[#1E252D] transition-colors group"
+              >
+                <span className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-5 h-5 rounded-md bg-[#0A66C2] text-white flex items-center justify-center shrink-0">
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="w-3 h-3 fill-current"
+                      aria-hidden="true"
+                    >
+                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                    </svg>
+                  </span>
+                  <span className="text-xs font-medium font-['Inter'] text-slate-700 group-hover:text-[#0A66C2] transition-colors truncate">
+                    Conectar en LinkedIn
+                  </span>
+                </span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#0A66C2] transition-colors shrink-0" />
+              </a>
+            </div>
           </nav>
         </div>
 
         {/* Footer Philosophy Card */}
-        <div className="mt-auto pt-4">
+        <div className="mt-auto pt-4 space-y-3">
           <div className="bg-white rounded-2xl p-3.5 border border-[#E4ECF2] shadow-xs text-xs text-slate-600 space-y-1.5">
             <div className="flex items-center gap-1.5 font-medium text-[#1E252D] text-[11px] font-['Outfit']">
               <span className="text-[#3B8AC4]">✦</span>
@@ -148,7 +181,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             </p>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-[#E4ECF2] flex items-center justify-between text-[10.5px] text-slate-500 font-medium px-1">
+          <div className="pt-3 border-t border-[#E4ECF2] flex items-center justify-between text-[10.5px] text-slate-500 font-medium px-1">
             <span>E. Carriego N° 431, La Rioja</span>
             <span className="font-bold text-[#2C6E9E] font-['Outfit']">I+S Data</span>
           </div>
