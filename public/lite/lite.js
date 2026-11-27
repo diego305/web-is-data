@@ -9,7 +9,7 @@
   "use strict";
 
   var STORAGE_KEY = "is_data_solutions_entrevistas_v1";
-  var COMPANY_ADDRESS = "E. Carriego N° 431, La Rioja, Argentina";
+  var COMPANY_LOCATION = "La Rioja, Argentina";
   var MAX_OBSTACLES = 3;
 
   var STORAGE_LABELS = {
@@ -313,7 +313,7 @@
     lines.push("OBSERVACIONES: " + (data.observaciones || "Sin observaciones"));
     lines.push("EVALUADOR: " + (data.evaluador || "Autodiagnóstico"));
     lines.push("========================================================================");
-    lines.push("I+S DATA SOLUTIONS — " + COMPANY_ADDRESS);
+    lines.push("I+S DATA SOLUTIONS — " + COMPANY_LOCATION);
     return lines.join("\n");
   }
 
@@ -702,7 +702,7 @@
           "Dimensiones: Almacenamiento 75%, Integración 50%, Frecuencia 75%, Calidad 65%, Eficiencia 70%",
           "Propuesta (6 semanas / 4 fases): Pipeline automatizado desde ERP Tango + Tablero Ejecutivo de Stock y Compras.",
           "========================================================================",
-          "I+S DATA SOLUTIONS — " + COMPANY_ADDRESS
+          "I+S DATA SOLUTIONS — " + COMPANY_LOCATION
         ].join("\n");
         downloadTextFile("diagnostico_y_propuesta_modelo_is_data_solutions.txt", txt);
       };

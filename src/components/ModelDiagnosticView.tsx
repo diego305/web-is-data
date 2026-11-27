@@ -3,7 +3,7 @@ import { BrandBanner, ContrailCurves } from "./BrandHeader";
 import { GaugeChart } from "./charts/GaugeChart";
 import { RadarChart } from "./charts/RadarChart";
 import { evaluarDiagnostico } from "../lib/scoring";
-import { COMPANY_ADDRESS, MATRIZ_EVALUACION } from "../config/constants";
+import { COMPANY_LOCATION, MATRIZ_EVALUACION } from "../config/constants";
 import {
   BiToolId,
   DataConfidenceId,
@@ -179,7 +179,7 @@ ${IMPLEMENTATION_PHASES.map(
 ).join("\n")}
 
 ========================================================================
-I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
+I+S DATA SOLUTIONS — ${COMPANY_LOCATION}
 `;
 
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });

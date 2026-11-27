@@ -15,8 +15,7 @@ export const APP_SUBTITLE =
 export const APP_DESCRIPTION =
   "Acceda a un diagnóstico integral para evaluar cómo su organización captura, integra y aprovecha sus datos, identificar cuellos de botella operativos y recibir un informe inmediato con el plan recomendado para su primer sistema de tableros de control.";
 export const LINKEDIN_PROFILE_URL = "https://www.linkedin.com/in/diegoandrada/";
-export const COMPANY_ADDRESS = "E. Carriego N° 431, La Rioja, Argentina";
-export const COMPANY_ADDRESS_SHORT = "E. Carriego N° 431, La Rioja";
+export const COMPANY_LOCATION = "La Rioja, Argentina";
 export const MAX_DECISION_OBSTACLES = 3;
 
 // Opciones Sección 1: Datos Generales

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Interview } from "../types";
 import {
-  COMPANY_ADDRESS,
+  COMPANY_LOCATION,
   LINKEDIN_PROFILE_URL,
   MATRIZ_EVALUACION
 } from "../config/constants";
@@ -64,7 +64,7 @@ VALOR ESPERADO: ${interview.valor_esperado}
 OBSERVACIONES: ${interview.observaciones_consultor || "Sin observaciones"}
 EVALUADOR: ${interview.entrevistador || "Autodiagnóstico"}
 ========================================================================
-I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
+I+S DATA SOLUTIONS — ${COMPANY_LOCATION}
 `;
 
     const blob = new Blob([resumenTxt], { type: "text/plain;charset=utf-8" });

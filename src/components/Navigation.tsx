@@ -13,7 +13,7 @@ import {
 import { AppSquircleIcon } from "./BrandHeader";
 import { LinkedInIcon } from "./LinkedInIcon";
 import {
-  COMPANY_ADDRESS_SHORT,
+  COMPANY_LOCATION,
   LINKEDIN_PROFILE_URL
 } from "../config/constants";
 
@@ -291,7 +291,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           </div>
 
           <div className="pt-3 border-t border-[#E4ECF2] flex items-center justify-between text-xs text-slate-600 font-medium px-1">
-            <span>{COMPANY_ADDRESS_SHORT}</span>
+            <span>{COMPANY_LOCATION}</span>
             <span className="font-semibold text-[#2C6E9E] font-['Outfit']">I+S Data</span>
           </div>
         </div>

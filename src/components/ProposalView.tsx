@@ -1,7 +1,7 @@
 import React from "react";
 import { BrandBanner, ContrailCurves } from "./BrandHeader";
 import { LinkedInIcon } from "./LinkedInIcon";
-import { COMPANY_ADDRESS, LINKEDIN_PROFILE_URL } from "../config/constants";
+import { COMPANY_LOCATION, LINKEDIN_PROFILE_URL } from "../config/constants";
 import {
   ShieldCheck,
   MapPin,
@@ -297,7 +297,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#7EBCE6] shrink-0 mt-1" aria-hidden="true" />
                 <span>
-                  <strong className="text-white">Ubicación:</strong> {COMPANY_ADDRESS}.
+                  <strong className="text-white">Ubicación:</strong> {COMPANY_LOCATION}.
                 </span>
               </div>
               <div className="flex items-start gap-2.5">
