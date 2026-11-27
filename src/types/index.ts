@@ -105,14 +105,15 @@ export interface FormDraft {
   employeeCount: string;
   storageSourceIds: StorageSourceId[];
   storageOther: string;
-  integrationLevelId: IntegrationLevelId;
-  updateFrequencyId: UpdateFrequencyId;
-  dataConfidenceId: DataConfidenceId;
-  reportTimeId: ReportTimeId;
-  currentBiToolId: BiToolId;
+  integrationLevelId: IntegrationLevelId | "";
+  updateFrequencyId: UpdateFrequencyId | "";
+  dataConfidenceId: DataConfidenceId | "";
+  reportTimeId: ReportTimeId | "";
+  currentBiToolId: BiToolId | "";
   decisionObstacles: string[];
   priorityProcess: string;
   priorityOther: string;
   expectedValue: string;
   consultantNotes: string;
+  currentStep?: number;
 }

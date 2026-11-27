@@ -1,17 +1,13 @@
-import { Suspense, lazy, useState } from "react";
-import { Navigation, NavModule } from "./components/Navigation";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import { Navigation, NavModule, MODULE_HASH_MAP, getModuleFromHash } from "./components/Navigation";
 import { FormView } from "./components/FormView";
+import { ProposalView } from "./components/ProposalView";
 import { PropellerLoader } from "./components/BrandHeader";
 import { Interview, SaveInterviewResult } from "./types";
 
 const ModelDiagnosticView = lazy(() =>
   import("./components/ModelDiagnosticView").then((m) => ({
     default: m.ModelDiagnosticView
-  }))
-);
-const ProposalView = lazy(() =>
-  import("./components/ProposalView").then((m) => ({
-    default: m.ProposalView
   }))
 );
 const MethodologyView = lazy(() =>
@@ -26,14 +22,29 @@ const ProfileView = lazy(() =>
 );
 
 export function App() {
-  const [currentModule, setCurrentModule] = useState<NavModule>("form");
+  const [currentModule, setCurrentModule] = useState<NavModule>(() =>
+    getModuleFromHash(window.location.hash)
+  );
   const [lastSaved, setLastSaved] = useState<Interview | null>(null);
   const [lastSavedPersisted, setLastSavedPersisted] = useState<boolean>(true);
 
-  const handleSelectModule = (mod: NavModule) => {
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentModule(getModuleFromHash(window.location.hash));
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  const handleSelectModule = useCallback((mod: NavModule) => {
     setCurrentModule(mod);
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  };
+    const targetHash = `#${MODULE_HASH_MAP[mod]}`;
+    if (window.location.hash !== targetHash) {
+      window.history.pushState(null, "", targetHash);
+    }
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleDiagnosticSaved = (result: SaveInterviewResult) => {
     setLastSaved(result.interview);
@@ -55,19 +66,26 @@ export function App() {
         Saltar al contenido principal
       </a>
 
-      {/* Navigation Sidebar */}
+      {/* Navigation Sidebar + Mobile Quick Strip */}
       <Navigation
         currentModule={currentModule}
         onSelectModule={handleSelectModule}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-72 print:ml-0 flex flex-col min-h-screen">
+      <div className="flex-1 lg:ml-72 print:ml-0 flex flex-col min-h-screen min-w-0">
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 overflow-y-auto"
+          className="flex-1 p-3.5 sm:p-6 lg:p-8 print:p-0"
         >
+          {currentModule === "proposal" && (
+            <ProposalView
+              onStartDiagnostic={() => handleSelectModule("form")}
+              onViewModel={() => handleSelectModule("model")}
+            />
+          )}
+
           {currentModule === "form" && (
             <FormView
               lastSaved={lastSaved}
@@ -77,7 +95,7 @@ export function App() {
             />
           )}
 
-          {currentModule !== "form" && (
+          {currentModule !== "proposal" && currentModule !== "form" && (
             <Suspense
               fallback={
                 <div className="flex items-center justify-center py-20">
@@ -90,8 +108,11 @@ export function App() {
                   onStartDiagnostic={() => handleSelectModule("form")}
                 />
               )}
-              {currentModule === "proposal" && <ProposalView />}
-              {currentModule === "methodology" && <MethodologyView />}
+              {currentModule === "methodology" && (
+                <MethodologyView
+                  onStartDiagnostic={() => handleSelectModule("form")}
+                />
+              )}
               {currentModule === "profile" && (
                 <ProfileView
                   onStartDiagnostic={() => handleSelectModule("form")}

@@ -4,8 +4,11 @@ interface RadioOptionGroupProps<T extends string> {
   legend: string;
   name: string;
   options: TypedOption<T>[];
-  value: T;
+  value: T | "";
   onChange: (value: T) => void;
+  required?: boolean;
+  error?: string;
+  errorId?: string;
 }
 
 export function RadioOptionGroup<T extends string>({
@@ -13,12 +16,24 @@ export function RadioOptionGroup<T extends string>({
   name,
   options,
   value,
-  onChange
+  onChange,
+  required = false,
+  error,
+  errorId
 }: RadioOptionGroupProps<T>) {
   return (
-    <fieldset className="space-y-2">
-      <legend className="block text-xs font-medium text-[#1E252D] mb-2 font-['Outfit']">
+    <fieldset
+      className="space-y-2.5"
+      aria-invalid={error ? "true" : undefined}
+      aria-describedby={error && errorId ? errorId : undefined}
+    >
+      <legend className="block text-sm font-medium text-[#1E252D] mb-2 font-['Outfit'] leading-snug">
         {legend}
+        {required && (
+          <span className="text-[#B4372D] ml-1" aria-hidden="true">
+            *
+          </span>
+        )}
       </legend>
       <div className="space-y-2">
         {options.map((opt) => {
@@ -26,9 +41,11 @@ export function RadioOptionGroup<T extends string>({
           return (
             <label
               key={opt.id}
-              className={`flex items-start gap-2.5 p-3 min-h-[44px] rounded-xl border text-xs sm:text-sm cursor-pointer transition-colors ${
+              className={`flex items-start gap-3 p-3.5 min-h-[48px] rounded-xl border text-sm leading-snug cursor-pointer transition-colors ${
                 checked
-                  ? "bg-sky-50/70 border-[#3B8AC4] text-[#1E252D] font-medium"
+                  ? "bg-sky-50/80 border-[#2C6E9E] text-[#1E252D] font-medium"
+                  : error
+                  ? "bg-rose-50/30 border-rose-300 text-slate-700 hover:bg-rose-50/60"
                   : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB]"
               }`}
             >
@@ -38,13 +55,18 @@ export function RadioOptionGroup<T extends string>({
                 value={opt.id}
                 checked={checked}
                 onChange={() => onChange(opt.id)}
-                className="mt-0.5 text-[#2C6E9E] focus:ring-[#3B8AC4]"
+                className="mt-0.5 w-4 h-4 shrink-0 accent-[#2C6E9E]"
               />
               <span>{opt.label}</span>
             </label>
           );
         })}
       </div>
+      {error && (
+        <p id={errorId} role="alert" className="text-xs font-medium text-[#B4372D] pt-0.5">
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }
@@ -58,6 +80,9 @@ interface CheckboxOptionGroupProps<T extends string> {
   columns?: 1 | 2;
   accent?: "blue" | "bronze";
   maxSelections?: number;
+  required?: boolean;
+  error?: string;
+  errorId?: string;
 }
 
 export function CheckboxOptionGroup<T extends string>({
@@ -68,17 +93,29 @@ export function CheckboxOptionGroup<T extends string>({
   onToggle,
   columns = 1,
   accent = "blue",
-  maxSelections
+  maxSelections,
+  required = false,
+  error,
+  errorId
 }: CheckboxOptionGroupProps<T>) {
   const limitReached =
     typeof maxSelections === "number" && selected.length >= maxSelections;
 
   return (
-    <fieldset className="space-y-2">
-      <legend className="block text-xs font-medium text-[#1E252D] mb-1.5 font-['Outfit']">
+    <fieldset
+      className="space-y-2.5"
+      aria-invalid={error ? "true" : undefined}
+      aria-describedby={error && errorId ? errorId : undefined}
+    >
+      <legend className="block text-sm font-medium text-[#1E252D] mb-1.5 font-['Outfit'] leading-snug">
         {legend}
+        {required && (
+          <span className="text-[#B4372D] ml-1" aria-hidden="true">
+            *
+          </span>
+        )}
         {hint && (
-          <span className="block text-[11px] font-normal text-slate-600 font-['Inter'] mt-0.5">
+          <span className="block text-xs font-normal text-slate-600 font-['Inter'] mt-0.5">
             {hint}
           </span>
         )}
@@ -96,16 +133,18 @@ export function CheckboxOptionGroup<T extends string>({
           const activeClass =
             accent === "bronze"
               ? "bg-[#FAF7F5] border-[#7A5F4B] text-[#1E252D] font-medium"
-              : "bg-sky-50/70 border-[#3B8AC4] text-[#1E252D] font-medium";
+              : "bg-sky-50/80 border-[#2C6E9E] text-[#1E252D] font-medium";
 
           return (
             <label
               key={opt.id}
-              className={`flex items-start gap-2.5 p-3 min-h-[44px] rounded-xl border text-xs sm:text-sm transition-colors ${
+              className={`flex items-start gap-3 p-3.5 min-h-[48px] rounded-xl border text-sm leading-snug transition-colors ${
                 checked
                   ? `${activeClass} cursor-pointer`
                   : disabled
-                  ? "bg-slate-50 border-[#E4ECF2] text-slate-500 cursor-not-allowed opacity-65"
+                  ? "bg-slate-50 border-[#E4ECF2] text-slate-500 cursor-not-allowed opacity-70"
+                  : error
+                  ? "bg-rose-50/30 border-rose-300 text-slate-700 hover:bg-rose-50/60 cursor-pointer"
                   : "bg-white border-[#E4ECF2] text-slate-700 hover:bg-[#F5F8FB] cursor-pointer"
               }`}
             >
@@ -114,13 +153,18 @@ export function CheckboxOptionGroup<T extends string>({
                 checked={checked}
                 disabled={disabled}
                 onChange={() => onToggle(opt.id)}
-                className="mt-0.5 rounded-sm border-[#E4ECF2] text-[#2C6E9E] focus:ring-[#3B8AC4]"
+                className="mt-0.5 w-4 h-4 shrink-0 rounded-sm accent-[#2C6E9E]"
               />
               <span>{opt.label}</span>
             </label>
           );
         })}
       </div>
+      {error && (
+        <p id={errorId} role="alert" className="text-xs font-medium text-[#B4372D] pt-0.5">
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }

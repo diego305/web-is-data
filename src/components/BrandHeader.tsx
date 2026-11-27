@@ -226,62 +226,76 @@ interface BrandBannerProps {
   title?: string;
   subtitle?: string;
   categoryTag?: string;
+  compact?: boolean;
 }
 
 export const BrandBanner: React.FC<BrandBannerProps> = ({
   title = "Diagnóstico de Madurez de Datos & BI",
   subtitle = "Evaluación Inicial para Business Intelligence",
-  categoryTag = "INFORMATION + SOLUTIONS"
+  categoryTag = "INFORMATION + SOLUTIONS",
+  compact = false
 }) => {
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-[#E4ECF2] mb-6 bg-[#1E252D] shadow-[0px_4px_16px_rgba(30,37,45,0.08)]">
-      <div className="relative h-40 sm:h-48 md:h-52 w-full overflow-hidden">
-        {/* Optimized WebP aerobatic banner photo */}
-        <img
-          src="/assets/aistudio/banner-hero.webp"
-          alt=""
-          aria-hidden="true"
-          width={1600}
-          height={420}
-          fetchPriority="high"
-          decoding="async"
-          className="w-full h-full object-cover object-center"
-          referrerPolicy="no-referrer"
-        />
+    <header className="relative rounded-2xl overflow-hidden border border-[#E4ECF2] mb-5 sm:mb-6 bg-[#1E252D] text-white shadow-[0px_4px_16px_rgba(30,37,45,0.08)]">
+      {/* Decorative background photo adapts automatically to text height */}
+      <img
+        src="/assets/aistudio/banner-hero.webp"
+        alt=""
+        aria-hidden="true"
+        width={1600}
+        height={420}
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        referrerPolicy="no-referrer"
+      />
 
-        {/* Contrail Curves subtle overlay */}
-        <ContrailCurves className="opacity-25" />
+      {/* Contrail Curves subtle overlay */}
+      <ContrailCurves className="opacity-25" />
 
-        {/* Gradient scrims for accessible contrast with the title & subtitle */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1E252D]/85 via-[#1E252D]/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1E252D]/85 via-transparent to-transparent" />
+      {/* Accessible contrast gradient scrims */}
+      <div
+        className="absolute inset-0 bg-gradient-to-r from-[#1E252D]/92 via-[#1E252D]/72 to-[#1E252D]/40"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-[#1E252D]/85 via-transparent to-[#1E252D]/35"
+        aria-hidden="true"
+      />
 
-        {/* Main Banner Content */}
-        <div className="absolute bottom-4 left-4 sm:left-6 right-4 sm:right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3 text-white">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-[#BFA898] font-['Outfit']">
-                {categoryTag}
-              </span>
-              <span className="text-[#7EBCE6]/70" aria-hidden="true">·</span>
-              <span className="text-[11px] font-medium text-white/90">
-                La Rioja, Argentina
-              </span>
-            </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-light tracking-wide text-white drop-shadow-xs font-['Outfit']">
-              {title}
-            </h1>
-            <p className="text-xs sm:text-sm text-sky-100/90 font-normal max-w-2xl drop-shadow-xs font-['Inter']">
-              {subtitle}
-            </p>
+      {/* Main Banner Content in normal document flow (never clips on 320-390px screens) */}
+      <div
+        className={`relative z-10 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3 ${
+          compact ? "py-5 sm:py-6" : "py-6 sm:py-9 md:py-11"
+        }`}
+      >
+        <div className="space-y-1.5 max-w-2xl">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+            <span className="font-semibold uppercase tracking-wider text-[#D4C0B2] font-['Outfit']">
+              {categoryTag}
+            </span>
+            <span className="text-[#7EBCE6]/70" aria-hidden="true">·</span>
+            <span className="font-medium text-white/90">
+              La Rioja, Argentina
+            </span>
           </div>
+          <h1
+            className={`${
+              compact ? "text-xl sm:text-2xl" : "text-xl sm:text-2xl md:text-3xl"
+            } font-medium tracking-wide text-white leading-snug font-['Outfit'] text-balance`}
+          >
+            {title}
+          </h1>
+          <p className="text-sm text-sky-100 font-normal leading-relaxed max-w-2xl font-['Inter']">
+            {subtitle}
+          </p>
+        </div>
 
-          <div className="hidden lg:flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/20 text-xs font-medium text-white shrink-0 self-start sm:self-auto font-['Outfit']">
-            <span className="w-2 h-2 rounded-full bg-[#7EBCE6]" />
-            <span>Inteligencia de Datos</span>
-          </div>
+        <div className="hidden lg:flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/20 text-xs font-medium text-white shrink-0 font-['Outfit']">
+          <span className="w-2 h-2 rounded-full bg-[#7EBCE6]" aria-hidden="true" />
+          <span>Inteligencia de Datos</span>
         </div>
       </div>
-    </div>
+    </header>
   );
 };

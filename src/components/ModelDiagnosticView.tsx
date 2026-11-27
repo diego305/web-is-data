@@ -122,6 +122,7 @@ export const ModelDiagnosticView: React.FC<ModelDiagnosticViewProps> = ({
   onStartDiagnostic
 }) => {
   const [viewFilter, setViewFilter] = useState<ViewFilter>("completo");
+  const [downloaded, setDownloaded] = useState(false);
 
   const diagnostic = useMemo(
     () =>
@@ -188,6 +189,8 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
     link.download = "diagnostico_y_propuesta_modelo_is_data_solutions.txt";
     link.click();
     URL.revokeObjectURL(url);
+    setDownloaded(true);
+    window.setTimeout(() => setDownloaded(false), 3500);
   };
 
   const showDiagnostic = viewFilter === "completo" || viewFilter === "diagnostico";
@@ -200,6 +203,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
         title="Diagnóstico Modelo y Propuesta Asociada"
         subtitle="Ejemplo integral del informe de madurez de datos y la propuesta técnica de Business Intelligence que generamos para cada organización"
         categoryTag="CASO MODELO DE REFERENCIA"
+        compact
       />
 
       {/* Interactive View Controls & Actions Bar */}
@@ -250,8 +254,17 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
             onClick={handleDownloadModelDocument}
             className="inline-flex items-center gap-2 px-4 py-2 min-h-[44px] sm:min-h-[38px] text-xs font-semibold text-white btn-primary whitespace-nowrap shrink-0 cursor-pointer"
           >
-            <Download className="w-4 h-4" aria-hidden="true" />
-            <span>Descargar Caso Modelo (.txt)</span>
+            {downloaded ? (
+              <>
+                <Check className="w-4 h-4" aria-hidden="true" />
+                <span>Caso Modelo descargado</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" aria-hidden="true" />
+                <span>Descargar Caso Modelo (.txt)</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -259,10 +272,10 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
       {/* Model Organization Executive Header */}
       <section className="relative rounded-2xl overflow-hidden border border-[#E4ECF2] bg-[#1E252D] text-white">
         <ContrailCurves className="opacity-35" />
-        <div className="relative p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative p-5 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2 text-xs text-sky-200">
-              <span className="font-semibold text-[#BFA898] font-['Outfit']">
+              <span className="font-semibold text-[#D4C0B2] font-['Outfit']">
                 Caso Modelo de Referencia
               </span>
               <span aria-hidden="true" className="text-sky-300/50">·</span>
@@ -271,7 +284,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-light text-white tracking-wide font-['Outfit'] text-balance">
+            <h2 className="text-2xl sm:text-3xl font-medium text-white tracking-wide font-['Outfit'] text-balance">
               {MODEL_CASE_RAW.empresa}
             </h2>
 
@@ -325,7 +338,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
             >
               01. Diagnóstico de Madurez de Datos & BI
             </h3>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-600">
               Evaluación ponderada en 5 dimensiones clave
             </span>
           </div>
@@ -333,7 +346,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
           {/* Visual Charts Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
             <div className="flex flex-col">
-              <div className="text-xs font-semibold text-slate-500 mb-2.5 font-['Outfit']">
+              <div className="text-xs font-semibold text-slate-600 mb-2.5 font-['Outfit']">
                 Índice de Madurez Global
               </div>
               <div className="flex-1 flex flex-col [&>*]:flex-1">
@@ -346,7 +359,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
             </div>
 
             <div className="flex flex-col">
-              <div className="text-xs font-semibold text-slate-500 mb-2.5 font-['Outfit']">
+              <div className="text-xs font-semibold text-slate-600 mb-2.5 font-['Outfit']">
                 Perfil Analítico por Dimensión
               </div>
               <div className="flex-1 flex flex-col [&>*]:flex-1">
@@ -361,7 +374,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
               <h4 className="text-sm font-semibold text-[#1E252D] font-['Outfit']">
                 Desglose por Dimensión y Hallazgos Técnicos
               </h4>
-              <span className="text-xs text-slate-500 font-mono tabular-nums">
+              <span className="text-xs text-slate-600 font-mono tabular-nums">
                 Promedio ponderado: {diagnostic.score_global} / 100
               </span>
             </div>
@@ -412,7 +425,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
                   {matrizInfo.criterio}
                 </p>
-                <p className="text-xs text-slate-500 leading-relaxed pt-1">
+                <p className="text-xs text-slate-600 leading-relaxed pt-1">
                   {MODEL_CASE_RAW.observaciones_consultor}
                 </p>
               </div>
@@ -483,11 +496,11 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
                 </div>
 
                 <div className="md:text-right shrink-0 space-y-1 pt-2 md:pt-0">
-                  <div className="text-xs text-slate-500">Horizonte estimado</div>
+                  <div className="text-xs text-slate-600">Horizonte estimado</div>
                   <div className="text-2xl font-light text-[#1E252D] font-mono tabular-nums">
                     6 semanas
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-600">
                     4 fases · Entrega incremental
                   </div>
                 </div>
@@ -496,7 +509,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
 
             {/* Concrete Deliverables */}
             <div className="p-6 sm:p-8 space-y-4">
-              <div className="text-xs font-semibold text-slate-500 font-['Outfit']">
+              <div className="text-xs font-semibold text-slate-600 font-['Outfit']">
                 Entregables Incluidos en la Primera Etapa
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
@@ -521,10 +534,10 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
             {/* 4-Phase Roadmap Table */}
             <div className="p-6 sm:p-8 space-y-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <div className="text-xs font-semibold text-slate-500 font-['Outfit']">
+                <div className="text-xs font-semibold text-slate-600 font-['Outfit']">
                   Hoja de Ruta de Implementación
                 </div>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-600">
                   Seguimiento semanal con dirección y referentes operativos
                 </span>
               </div>
@@ -580,7 +593,7 @@ I+S DATA SOLUTIONS — ${COMPANY_ADDRESS}
                 </p>
               </div>
               <div>
-                <div className="text-xs text-slate-500 font-['Outfit']">
+                <div className="text-xs text-slate-600 font-['Outfit']">
                   Valor principal alcanzado
                 </div>
                 <div className="text-sm font-semibold text-[#1E252D] font-['Outfit'] mt-1 leading-snug">

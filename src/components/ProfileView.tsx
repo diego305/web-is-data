@@ -104,10 +104,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
         title="Diego Jesús Andrada"
         subtitle="Ciencia de Datos, Business Intelligence y Analítica para la Toma de Decisiones Estratégicas"
         categoryTag="PERFIL PROFESIONAL"
+        compact
       />
 
       {/* Executive Profile Overview */}
-      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-6 sm:p-8">
+      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-4 sm:p-7">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="flex items-start gap-4 sm:gap-5">
             {/* Brand-aligned Monogram Avatar */}
@@ -133,7 +134,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
               </div>
 
               {/* Clean unboxed metadata row */}
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-[#3B8AC4]" />
                   La Rioja Capital, Argentina
@@ -172,19 +173,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
         {/* Summary Highlights Row */}
         <div className="mt-6 pt-5 border-t border-[#E4ECF2] grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <div className="text-[11px] font-medium text-slate-500">Foco principal</div>
+            <div className="text-[11px] font-medium text-slate-600">Foco principal</div>
             <div className="text-sm font-semibold text-[#1E252D] font-['Outfit'] mt-0.5">
               Business Intelligence &amp; Data Science
             </div>
           </div>
           <div>
-            <div className="text-[11px] font-medium text-slate-500">Herramientas centrales</div>
+            <div className="text-[11px] font-medium text-slate-600">Herramientas centrales</div>
             <div className="text-sm font-semibold text-[#1E252D] font-['Outfit'] mt-0.5">
               Power BI · Tableau · Looker Studio · Python
             </div>
           </div>
           <div>
-            <div className="text-[11px] font-medium text-slate-500">Ámbito de impacto</div>
+            <div className="text-[11px] font-medium text-slate-600">Ámbito de impacto</div>
             <div className="text-sm font-semibold text-[#1E252D] font-['Outfit'] mt-0.5">
               Gestión Pública, PyMEs y Sector Productivo
             </div>
@@ -193,15 +194,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
       </section>
 
       {/* 01. Trayectoria Profesional */}
-      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-6 sm:p-8 space-y-6">
-        <div className="flex items-center justify-between gap-4 border-b border-[#E4ECF2] pb-4">
+      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-4 sm:p-7 space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E4ECF2] pb-4">
           <div className="flex items-center gap-2.5">
-            <Briefcase className="w-4 h-4 text-[#3B8AC4] shrink-0" />
-            <h3 className="text-base font-medium text-[#1E252D] font-['Outfit']">
+            <Briefcase className="w-4 h-4 text-[#2C6E9E] shrink-0" aria-hidden="true" />
+            <h3 className="text-base sm:text-lg font-semibold text-[#1E252D] font-['Outfit']">
               01. Experiencia y Liderazgo en Datos
             </h3>
           </div>
-          <span className="text-xs text-slate-500 whitespace-nowrap">
+          <span className="text-xs text-slate-600">
             Sector Público &amp; Consultoría
           </span>
         </div>
@@ -218,7 +219,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500 mt-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-600 mt-1">
                 <span className="font-medium text-slate-700">{item.organization}</span>
                 <span aria-hidden="true">·</span>
                 <span>{item.location}</span>
@@ -244,15 +245,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
       </section>
 
       {/* 02. Formación Académica */}
-      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-6 sm:p-8 space-y-5">
-        <div className="flex items-center justify-between gap-4 border-b border-[#E4ECF2] pb-4">
+      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-4 sm:p-7 space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E4ECF2] pb-4">
           <div className="flex items-center gap-2.5">
-            <GraduationCap className="w-4 h-4 text-[#BFA898] shrink-0" />
-            <h3 className="text-base font-medium text-[#1E252D] font-['Outfit']">
+            <GraduationCap className="w-4 h-4 text-[#7A5F4B] shrink-0" aria-hidden="true" />
+            <h3 className="text-base sm:text-lg font-semibold text-[#1E252D] font-['Outfit']">
               02. Formación Académica y Especializaciones
             </h3>
           </div>
-          <span className="text-xs text-slate-500 whitespace-nowrap">
+          <span className="text-xs text-slate-600">
             Negocio &amp; Tecnología
           </span>
         </div>
@@ -283,15 +284,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
       </section>
 
       {/* 03. Stack Técnico y Competencias */}
-      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-6 sm:p-8 space-y-5">
-        <div className="flex items-center justify-between gap-4 border-b border-[#E4ECF2] pb-4">
+      <section className="bg-white rounded-2xl border border-[#E4ECF2] shadow-xs p-4 sm:p-7 space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E4ECF2] pb-4">
           <div className="flex items-center gap-2.5">
-            <Layers className="w-4 h-4 text-[#3B8AC4] shrink-0" />
-            <h3 className="text-base font-medium text-[#1E252D] font-['Outfit']">
+            <Layers className="w-4 h-4 text-[#2C6E9E] shrink-0" aria-hidden="true" />
+            <h3 className="text-base sm:text-lg font-semibold text-[#1E252D] font-['Outfit']">
               03. Stack Tecnológico y Competencias Clave
             </h3>
           </div>
-          <span className="text-xs text-slate-500 whitespace-nowrap">
+          <span className="text-xs text-slate-600">
             Herramientas &amp; Metodologías
           </span>
         </div>
@@ -323,17 +324,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onStartDiagnostic }) =
       </section>
 
       {/* 04. Cierre y Conexión */}
-      <section className="relative rounded-2xl overflow-hidden border border-[#E4ECF2] shadow-[0px_4px_16px_rgba(30,37,45,0.08)] bg-[#1E252D] text-white p-6 sm:p-8">
+      <section className="relative rounded-2xl overflow-hidden border border-[#E4ECF2] shadow-[0px_4px_16px_rgba(30,37,45,0.08)] bg-[#1E252D] text-white p-5 sm:p-8">
         <ContrailCurves className="opacity-30" />
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="space-y-1.5 max-w-2xl">
-            <div className="text-xs font-medium text-[#BFA898] font-['Outfit']">
+            <div className="text-xs font-semibold text-[#D4C0B2] uppercase tracking-wider font-['Outfit']">
               Conexión directa y consultoría
             </div>
-            <h3 className="text-lg sm:text-xl font-light text-white font-['Outfit'] tracking-wide">
+            <h3 className="text-lg sm:text-xl font-medium text-white font-['Outfit'] tracking-wide">
               ¿Querés conocer el detalle completo de mi trayectoria o evaluar un proyecto de BI?
             </h3>
-            <p className="text-xs sm:text-sm text-sky-100/85 leading-relaxed">
+            <p className="text-sm text-sky-100 leading-relaxed">
               Podés conectar directamente por LinkedIn o completar el diagnóstico inicial para recibir una evaluación automatizada del nivel de madurez de datos de tu organización.
             </p>
           </div>
